@@ -30,7 +30,7 @@ void sendDisableRequest() {
   CAN().write(disableMessage);
 }
 
-bool sendEnableRequestWrapper(Task*) {
+boolean sendEnableRequestWrapper(Task*) {
   sendEnableRequest();
   enableFired = true;
   return false;

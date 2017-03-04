@@ -29,7 +29,7 @@ class Rtd_Handler {
 // Have to have a bunch of non-member functions cause reasons
 void sendEnableRequest();
 void sendDisableRequest();
-bool sendEnableRequestWrapper(Task*);
+boolean sendEnableRequestWrapper(Task*);
 void pressRtdButton();
 void releaseRtdButton(unsigned long);
 

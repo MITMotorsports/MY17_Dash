@@ -5,7 +5,7 @@ void Buzzer::begin() {
   pinMode(BUZZER_PIN, OUTPUT);
 }
 
-bool buzzerOff(Task*) {
+boolean buzzerOff(Task*) {
   Serial.println("Buzzer turned off");
   digitalWrite(BUZZER_PIN, LOW);
   // False means don't execute follow-up task
