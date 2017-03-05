@@ -3,7 +3,7 @@
 // Must define instance prior to use
 Can_Controller* Can_Controller::instance = NULL;
 
-Can_Controller::Can_Controller () 
+Can_Controller::Can_Controller ()
 : begun(false)
 {
   delegate = MCP_CAN(MCP_CS_PIN);
@@ -88,5 +88,9 @@ String Can_Controller::canResponseToString(uint8_t response) {
 }
 
 void Can_Controller::write(Frame f) {
-  delegate.sendMsgBuf(f.id, 0, f.len, f.body);
+  uint8_t response = delegate.sendMsgBuf(f.id, 0, f.len, f.body);
+  if (response != CAN_OK) {
+      Serial.print("Error when writing: ");
+      Serial.println(canResponseToString(response));
+  }
 }

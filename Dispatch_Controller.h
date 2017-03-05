@@ -1,7 +1,7 @@
 #ifndef DISPATCH_CONTROLLER_H
 #define DISPATCH_CONTROLLER_H
 
-#include "Rtd_Handler.h"
+#include "Can_Controller.h"
 
 class Dispatch_Controller {
   public:
@@ -14,7 +14,6 @@ class Dispatch_Controller {
     Dispatch_Controller();
     void performEnableActions(Frame& frame);
     static Dispatch_Controller *instance;
-    Rtd_Handler rtd_handler;
     bool begun;
 };
 

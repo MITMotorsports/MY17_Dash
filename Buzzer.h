@@ -9,7 +9,6 @@ class Buzzer {
   public:
     void begin();
     void trigger(int ms);
-
   private:
     bool enabled = BUZZER_ENABLED;
 };

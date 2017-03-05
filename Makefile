@@ -68,7 +68,7 @@ endif
 
 ### MONITOR_PORT
 ### The port your board is connected to. Using an '*' tries all the ports and finds the right one.
-MONITOR_PORT      = /dev/tty.usbmodem*
+MONITOR_PORT      = /dev/ttyUSB*
 
 ### OBJDIR
 ### This is were you put the binaries you just compile using 'make'

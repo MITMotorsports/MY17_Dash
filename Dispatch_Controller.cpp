@@ -7,13 +7,10 @@
 
 #include "Can_Controller.h"
 #include "Led_Controller.h"
-#include "Rtd_Controller.h"
-
-#include "Rtd_Handler.h"
+#include "State_Handler.h"
 
 Dispatch_Controller::Dispatch_Controller()
-: rtd_handler(Rtd_Handler()),
-  begun(false)
+: begun(false)
 {
 
 }
@@ -36,18 +33,17 @@ void Dispatch_Controller::begin() {
   Serial.begin(115200);
 
   // Initialize LED controller and run blocking flex sequence
-  LED().begin();
-  LED().flex();
-
-  // Initialize RTD state controller
-  RTD().begin();
+  Led_Controller::begin();
 
   // Initialize CAN controller
   CAN().begin();
 
-  // Initialize rtd handler
-  rtd_handler.begin();
+  // Initialize RTD state controller
+  State_Handler::begin();
 
+  Serial.println("Dash Initialized");
+  Frame msg = {.id=0x69, .body={10}, .len=1};
+  CAN().write(msg);
   SoftTimer.add(&stepTask);
 }
 
@@ -70,5 +66,5 @@ void Dispatch_Controller::dispatch() {
   // If no message, break early
   if(!CAN().msgAvailable()) { return; }
   Frame frame = CAN().read();
-  rtd_handler.handleMessage(frame);
+  State_Handler::handleMessage(frame);
 }

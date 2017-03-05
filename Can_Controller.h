@@ -4,8 +4,8 @@
 #include <mcp_can.h>
 #include "Pins.h"
 
-const int MCP_INT_PIN = 8;
-const int MCP_CS_PIN = 10;
+const int MCP_INT_PIN = 21; //43
+const int MCP_CS_PIN = 53; //physical 19
 
 typedef struct Frame {
   unsigned int id;
