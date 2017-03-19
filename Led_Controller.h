@@ -1,15 +1,26 @@
 #ifndef LED_CONTROLLER_H
 #define LED_CONTROLLER_H
 
-#include "LightState.h"
+#include <Arduino.h>
+
+enum LightState {
+    OFF,
+    ON
+};
+
+enum LightType{
+    IMD,
+    HV,
+    RTD,
+    AMS
+};
 
 class Led_Controller {
   public:
     static void begin();
-    static void setRTDLight(LightState state);
-    static void setAMSLight(LightState state);
-    static void setIMDLight(LightState state);
-    static void setHVLight(LightState state);
+    static void setLight(LightType type, LightState state);
+  private:
+    static void setLightHardware(uint8_t lightPin, LightState state);
 };
 
 #endif // LED_CONTROLLER_H

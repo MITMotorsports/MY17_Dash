@@ -28,8 +28,8 @@ const int RIGHT_BUTTON_PIN = 18;
 //PD4, 47
 const int DRIVER_RESET_BUTTON_PIN = PD4;
 
-//PD5, 48
-const int RTD_BUTTON_PIN = PD5;
+//PA5, AD3, 75
+const int RTD_BUTTON_PIN = 25;
 
 //PD6, 49
 const int STEERING_BUTTON_PIN = PD6;

@@ -6,58 +6,40 @@ void Led_Controller::begin(){
     pinMode(RTD_LED_PIN, OUTPUT);
     pinMode(IMD_LED_PIN, OUTPUT);
     pinMode(AMS_LED_PIN, OUTPUT);
+    //TODO change initialiation to LOW to turn off lights
+    digitalWrite(HV_LED_PIN, HIGH);
+    digitalWrite(RTD_LED_PIN, HIGH);
+    digitalWrite(IMD_LED_PIN, HIGH);
+    digitalWrite(AMS_LED_PIN, HIGH);
 }
 
-void Led_Controller::setIMDLight(LightState state) {
-    switch (state) {
-        case LightState::ON:
-            digitalWrite(IMD_LED_PIN, HIGH);
-            break;
-        case LightState::OFF:
-            digitalWrite(IMD_LED_PIN, LOW);
-            break;
-        default:
-            Serial.println("Invalid State");
+void Led_Controller::setLightHardware(uint8_t lightPin, LightState state){
+    if (state == ON){
+        digitalWrite(lightPin, LOW);
+        Serial.println("wrote low");
+    }
+    else if (state == OFF){
+        digitalWrite(lightPin, HIGH);
+        Serial.println("wrote high");
+    }
+    else{
+        Serial.println("Invalid LED state");
     }
 }
-
-void Led_Controller::setAMSLight(LightState state) {
-    switch (state) {
-        case LightState::ON:
-            digitalWrite(AMS_LED_PIN, HIGH);
+// TODO change the logic of pulling pins high/low to turn on LED after new board comes back
+void Led_Controller::setLight(LightType type, LightState state) {
+    switch (type) {
+        case HV:
+            setLightHardware(HV_LED_PIN, state);
             break;
-        case LightState::OFF:
-            digitalWrite(AMS_LED_PIN, LOW);
+        case RTD:
+            setLightHardware(RTD_LED_PIN, state);
             break;
-        default:
-            Serial.println("Invalid State");
-    }
-}
-
-void Led_Controller::setRTDLight(LightState state) {
-    switch (state) {
-        case LightState::ON:
-            digitalWrite(RTD_LED_PIN, HIGH);
-
+        case IMD:
+            setLightHardware(IMD_LED_PIN, state);
             break;
-        case LightState::OFF:
-            digitalWrite(RTD_LED_PIN, LOW);
+        case AMS:
+            setLightHardware(AMS_LED_PIN, state);
             break;
-        default:
-            Serial.println("Invalid State");
-    }
-}
-
-void Led_Controller::setHVLight(LightState state) {
-    switch (state) {
-        case LightState::ON:
-            digitalWrite(HV_LED_PIN, HIGH);
-
-            break;
-        case LightState::OFF:
-            digitalWrite(HV_LED_PIN, LOW);
-            break;
-        default:
-            Serial.println("Invalid State");
     }
 }
