@@ -4,11 +4,13 @@
 #include <SoftTimer.h>
 #include <DelayRun.h>
 #include <Debouncer.h>
+#include <Bounce2.h>
+#include <Timer.h>
 
 #include "Can_Controller.h"
 #include "Led_Controller.h"
 #include "State_Handler.h"
-
+#include "Button_Listener.h"
 Dispatch_Controller::Dispatch_Controller()
 : begun(false)
 {
@@ -32,14 +34,17 @@ void Dispatch_Controller::begin() {
   // Start serial bus
   Serial.begin(115200);
 
-  // Initialize LED controller and run blocking flex sequence
+  // Initialize LED controller
   Led_Controller::begin();
 
   // Initialize CAN controller
   CAN().begin();
 
-  // Initialize RTD state controller
+  // Initialize state controller
   State_Handler::begin();
+
+  // Initialize button listener
+  Button_Listener::begin();
 
   Serial.println("Dash Initialized");
   Frame msg = {.id=0x69, .body={10}, .len=1};
@@ -63,8 +68,9 @@ Dispatch_Controller& Dispatcher() {
 }
 
 void Dispatch_Controller::dispatch() {
-  // If no message, break early
-  if(!CAN().msgAvailable()) { return; }
+  if(CAN().msgAvailable()) {
   Frame frame = CAN().read();
   State_Handler::handleMessage(frame);
+  }
+  Button_Listener::listen();
 }
