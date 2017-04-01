@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-enum LightState {
-    OFF,
-    ON
+enum LedLightState {
+    LEDOFF,
+    LEDON
 };
 
 enum LightType{
@@ -18,9 +18,9 @@ enum LightType{
 class Led_Controller {
   public:
     static void begin();
-    static void setLight(LightType type, LightState state);
+    static void setLight(LightType type, LedLightState state);
   private:
-    static void setLightHardware(uint8_t lightPin, LightState state);
+    static void setLightHardware(uint8_t lightPin, LedLightState state);
 };
 
-#endif // LED_CONTROLLER_H
+#endif

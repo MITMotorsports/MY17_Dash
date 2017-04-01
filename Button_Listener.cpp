@@ -64,7 +64,6 @@ void Button_Listener::listen() {
     Button_Listener::pressRtdButton();
   }
   else if (rtdDepress == true){
-    // Serial.println("Igothere");
     Button_Listener::releaseRtdButton();
   }
 
