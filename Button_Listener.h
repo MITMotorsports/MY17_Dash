@@ -9,14 +9,27 @@
 #include "Can_Ids.h"
 #include "Pins.h"
 
+enum ButtonName  {
+    RTD_BUTTON,
+    LIMP_BUTTON,
+    AERO_BUTTON
+};
+
 class Button_Listener {
     public:
         static void begin();
         static void listen();
+
+        static void pressButton(ButtonName button);
+        static void releaseButton(ButtonName button);
+
         static void sendEnableRequest();
         static void sendDisableRequest();
-        static void pressRtdButton();
-        static void releaseRtdButton();
+        static void sendLimpLongRequest();
+        static void sendLimpShortRequest();
+        static void sendAeroLongRequest();
+        static void sendAeroShortRequest();
+
 };
 
 #endif
