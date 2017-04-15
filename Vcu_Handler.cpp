@@ -1,9 +1,12 @@
-#include "VCU_Handler.h"
+#include "Vcu_Handler.h"
 #include "Critical_Page.h"
 #include "Led_Controller.h"
 #include "Lcd_Controller.h"
 #include "Can_Ids.h"
 #include "Pins.h"
+#include "Buzzer.h"
+
+Buzzer buzzer;
 
 void Vcu_Handler::begin() {
     ///what do we need to initialize??
@@ -15,6 +18,9 @@ void Vcu_Handler::handleMessage(Frame& frame) {
   switch(frame.id) {
     case VCU_LED_ID:
       processVcuLedMessage(frame);
+      break;
+    case VCU_ENABLED_ID:
+      processVcuEnabledMessage(frame);
       break;
     case VCU_LIMP_ID:
       processVcuLimpMessage(frame);
@@ -56,6 +62,13 @@ void Vcu_Handler::setLightHelper(LightType type, uint8_t desiredState){
       // Led_Controller::setLight(type, LEDOFF);
       Serial.println("No change in state");
   }
+}
+
+
+//TODO change the states to comething coherent wrt can library
+
+void Vcu_Handler::processVcuEnabledMessage(Frame& message){
+  buzzer.trigger(100);
 }
 
 void Vcu_Handler::processVcuLimpMessage(Frame& message){

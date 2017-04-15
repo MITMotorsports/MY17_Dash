@@ -31,8 +31,9 @@ const int DRIVER_RESET_BUTTON_PIN = PD4;
 //PA5, AD3, 75
 const int RTD_BUTTON_PIN = 25;
 
+//TODO:update pins for aero and limp button
 //PD6, 49
-const int STEERING_BUTTON_PIN = PD6;
+const int AERO_BUTTON_PIN = PD6;
 
 //PD7, 50
 const int LIMP_BUTTON_PIN = 38;

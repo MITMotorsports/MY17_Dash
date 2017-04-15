@@ -10,11 +10,12 @@ bool lvLow = false;
 bool soc = 0 ;
 bool temp = 0;
 bool power = 00.0;
+bool shutdownLoop = false;
+bool breakThrottle = false;
 
 void Critical_Page::begin(){
 }
 void Critical_Page::setFlag(Flag field, bool state){
-  //checks if you're trying to set it with a bool
   switch(field) {
     case LIMP:
       limpOn = state;
@@ -79,6 +80,19 @@ void Critical_Page::setNumericLight(Numeric field){
   }
 }
 
+void Critical_Page::setTakeoverLight(Takeover field){
+  switch(field){
+    case SHUTDOWNLOOP:
+      Lcd_Controller::writeMessage("SHUTDOWN",0,0);
+      Lcd_Controller::writeMessage("LOOP",0,1);
+      break;
+    case BREAKTHROTTLE:
+      Lcd_Controller::writeMessage("BREAK",0,0);
+      Lcd_Controller::writeMessage("THROTTLE",0,1);
+      break;
+  }
+}
+
 void Critical_Page::setNumeric(Numeric field, int8_t value){
   switch(field) {
     case SOC:
@@ -121,6 +135,23 @@ void Critical_Page::setNumeric(Numeric field, float value){
       if (displayed){
         setNumericLight(POWER);
       }
+      break;
+  }
+}
+
+void Critical_Page::setTakeover(Takeover field, bool state){
+  switch(field){
+    case SHUTDOWNLOOP:
+      shutdownLoop = state;
+      if (displayed){
+        setTakeoverLight(SHUTDOWNLOOP);
+      };
+      break;
+    case BREAKTHROTTLE:
+      breakThrottle = state;
+      if (displayed){
+        setTakeoverLight(BREAKTHROTTLE);
+      };
       break;
   }
 }

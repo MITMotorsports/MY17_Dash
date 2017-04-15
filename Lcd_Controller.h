@@ -4,31 +4,6 @@
 #include <Wire.h>
 #include <LiquidCrystal.h>
 
-// enum Flag{
-//   LIMP, //limp mode
-//   AE, //Active Aero
-//   TC, //Traction Control
-//   RG, //Regen
-//   LV //lv power low
-// };
-//
-// enum Numeric{
-//   SOC,
-//   TEMP,
-//   POWER
-// };
-//
-// enum Takeover{
-//   SDLOOP,
-//   BREAKTHROTTLE,
-//   SYSTEMOK
-// };
-//
-// enum LcdLightState{
-//   LCDON,
-//   LCDOFF
-// };
-
 //rs, enable, db4, db5, db6, db7
 static LiquidCrystal lcd(67, 66, 65, 64, 63, 62);
 

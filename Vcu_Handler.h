@@ -11,6 +11,7 @@ class Vcu_Handler{
     static void handleMessage(Frame& frame);
   private:
     static void processVcuLedMessage(Frame& message);
+    static void processVcuEnabledMessage(Frame& message);
     static void processVcuLimpMessage(Frame& message);
     static void processVcuAeroMessage(Frame& message);
     static void processVcuTcMessage(Frame& message);
@@ -18,5 +19,4 @@ class Vcu_Handler{
     static void processVcuLvMessage(Frame& message);
     static void setLightHelper(LightType type, uint8_t desiredState);
 };
-
 #endif

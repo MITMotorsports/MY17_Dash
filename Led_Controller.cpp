@@ -6,7 +6,6 @@ void Led_Controller::begin(){
     pinMode(RTD_LED_PIN, OUTPUT);
     pinMode(IMD_LED_PIN, OUTPUT);
     pinMode(AMS_LED_PIN, OUTPUT);
-    //TODO change initialiation to LOW to turn off lights
     digitalWrite(HV_LED_PIN, LOW);
     digitalWrite(RTD_LED_PIN, LOW);
     digitalWrite(IMD_LED_PIN, LOW);
