@@ -6,6 +6,7 @@ void Led_Controller::begin(){
     pinMode(RTD_LED_PIN, OUTPUT);
     pinMode(IMD_LED_PIN, OUTPUT);
     pinMode(AMS_LED_PIN, OUTPUT);
+
     //TODO change initialiation to LOW to turn off lights
     digitalWrite(HV_LED_PIN, HIGH);
     digitalWrite(RTD_LED_PIN, HIGH);
@@ -14,17 +15,7 @@ void Led_Controller::begin(){
 }
 
 void Led_Controller::setLightHardware(uint8_t lightPin, LightState state){
-    if (state == ON){
-        digitalWrite(lightPin, LOW);
-        Serial.println("wrote low");
-    }
-    else if (state == OFF){
-        digitalWrite(lightPin, HIGH);
-        Serial.println("wrote high");
-    }
-    else{
-        Serial.println("Invalid LED state");
-    }
+    digitalWrite(lightPin, state == ON ? LOW : HIGH);
 }
 // TODO change the logic of pulling pins high/low to turn on LED after new board comes back
 void Led_Controller::setLight(LightType type, LightState state) {
