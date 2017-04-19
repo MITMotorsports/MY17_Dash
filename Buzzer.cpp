@@ -3,6 +3,7 @@
 
 void Buzzer::begin() {
   pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
 }
 
 boolean buzzerOff(Task*) {

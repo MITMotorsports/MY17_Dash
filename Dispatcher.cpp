@@ -9,8 +9,11 @@
 
 #include <MY17_Can_Library.h>
 
+#include "Lcd_Controller.h"
 #include "Led_Controller.h"
-#include "State_Handler.h"
+
+#include "Bms_Handler.h"
+#include "Vcu_Handler.h"
 #include "Button_Listener.h"
 
 static bool begun;
@@ -28,14 +31,21 @@ void Dispatcher::begin() {
   // Start serial bus
   Serial.begin(115200);
 
-  // Initialize LED controller
-  Led_Controller::begin();
-
   // Initialize CAN controller
   Can_Init(500000);
 
   // Initialize button listener
   Button_Listener::begin();
+
+  // Initialize LED controller
+  Led_Controller::begin();
+
+  // Initialize LCD screen
+  Lcd_Controller::begin();
+
+  // Initialize handlers
+  Vcu_Handler::begin();
+  Bms_Handler::begin();
 
   Serial.println("Dash Initialized");
   SoftTimer.add(&dispatchTask);
@@ -45,11 +55,16 @@ void Dispatcher::processCanInputs() {
   Can_MsgID_T type = Can_MsgType();
   switch(type) {
     case Can_No_Msg:
-      return;
+      break;
     case Can_Vcu_DashHeartbeat_Msg:
-      Can_Vcu_DashHeartbeat_T msg;
-      Can_Vcu_DashHeartbeat_Read(&msg);
-      State_Handler::handle_Vcu_DashHeartbeat(&msg);
+      Vcu_Handler::handle_DashHeartbeat();
+      break;
+    case Can_Bms_Heartbeat_Msg:
+      Bms_Handler::handle_Heartbeat();
+      break;
+    case Can_Bms_CellTemps_Msg:
+      Bms_Handler::handle_CellTemps();
+      break;
     default:
       return;
   }

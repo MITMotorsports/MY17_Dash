@@ -7,18 +7,13 @@ void Led_Controller::begin(){
     pinMode(IMD_LED_PIN, OUTPUT);
     pinMode(AMS_LED_PIN, OUTPUT);
 
-    //TODO change initialiation to LOW to turn off lights
-    digitalWrite(HV_LED_PIN, HIGH);
-    digitalWrite(RTD_LED_PIN, HIGH);
-    digitalWrite(IMD_LED_PIN, HIGH);
-    digitalWrite(AMS_LED_PIN, HIGH);
+    setLight(HV, LED_OFF);
+    setLight(RTD, LED_OFF);
+    setLight(IMD, LED_OFF);
+    setLight(AMS, LED_OFF);
 }
 
-void Led_Controller::setLightHardware(uint8_t lightPin, LightState state){
-    digitalWrite(lightPin, state == ON ? LOW : HIGH);
-}
-// TODO change the logic of pulling pins high/low to turn on LED after new board comes back
-void Led_Controller::setLight(LightType type, LightState state) {
+void Led_Controller::setLight(LightType type, LedLightState state) {
     switch (type) {
         case HV:
             setLightHardware(HV_LED_PIN, state);
@@ -33,4 +28,8 @@ void Led_Controller::setLight(LightType type, LightState state) {
             setLightHardware(AMS_LED_PIN, state);
             break;
     }
+}
+
+void Led_Controller::setLightHardware(uint8_t lightPin, LedLightState state){
+    digitalWrite(lightPin, state == LED_ON ? HIGH : LOW);
 }

@@ -31,13 +31,32 @@ const int DRIVER_RESET_BUTTON_PIN = PD4;
 //PA5, AD3, 75
 const int RTD_BUTTON_PIN = 25;
 
+//TODO:update pins for aero and limp button
 //PD6, 49
-const int STEERING_BUTTON_PIN = PD6;
+const int AERO_BUTTON_PIN = PD6;
 
 //PD7, 50
 const int LIMP_BUTTON_PIN = 38;
 
 //PF7, 90
-const int BUZZER_PIN = A7;
+const int BUZZER_PIN = 61;
 
+//LCD Pins
+//PK0, PCINT16, ADC8, A8
+const int DB7_LCD_PIN = 62;
+
+//PK1, PCINT17, ADC9, A9
+const int DB6_LCD_PIN = 63;
+
+//PK2, PCINT18, ADC10, A10
+const int DB5_LCD_PIN = 64;
+
+//PK3, PCINT19, ADC11, A11
+const int DB4_LCD_PIN = 65;
+
+//PK4, PCINT20, ADC12, A12
+const int E_LCD_PIN = 66;
+
+//PK5, PCINT21, ADC13, A13
+const int RS_LCD_PIN = 67;
 #endif // PINS_H
