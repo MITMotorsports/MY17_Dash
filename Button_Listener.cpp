@@ -39,7 +39,7 @@ void Button_Listener::pressButton(ButtonName button){
   switch (button) {
     case RTD_BUTTON:
       if (enableFired == false){
-        rtdTimerID = rtdTimer.after(1000, Button_Listener::sendEnableRequest);
+        rtdTimerID = rtdTimer.after(500, Button_Listener::sendEnableRequest);
       }
       else{
         //do nothing
@@ -47,7 +47,7 @@ void Button_Listener::pressButton(ButtonName button){
       break;
     case LIMP_BUTTON:
       if ( limpFired== false){
-        limpTimerID = limpTimer.after(1000, Button_Listener::sendLimpLongRequest);
+        limpTimerID = limpTimer.after(500, Button_Listener::sendLimpLongRequest);
       }
       else{
         //do nothing
@@ -55,7 +55,7 @@ void Button_Listener::pressButton(ButtonName button){
       break;
     case AERO_BUTTON:
       if ( limpFired== false){
-        aeroTimerID = aeroTimer.after(1000, Button_Listener::sendAeroLongRequest);
+        aeroTimerID = aeroTimer.after(500, Button_Listener::sendAeroLongRequest);
       }
       else{
         //do nothing
