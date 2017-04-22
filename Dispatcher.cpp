@@ -21,6 +21,9 @@ static bool begun;
 void dispatchPointer(Task*);
 Task dispatchTask(0, dispatchPointer);
 
+void sendHeartbeat(Task*);
+Task heartbeatTask(1000, sendHeartbeat);
+
 void Dispatcher::begin() {
   // Idempotent
   if(begun) {
@@ -49,6 +52,7 @@ void Dispatcher::begin() {
 
   Serial.println("Dash Initialized");
   SoftTimer.add(&dispatchTask);
+  SoftTimer.add(&heartbeatTask);
 }
 
 void Dispatcher::processCanInputs() {
@@ -81,4 +85,11 @@ void Dispatcher::dispatch() {
 
 void dispatchPointer(Task*) {
   Dispatcher::dispatch();
+}
+
+void sendHeartbeat(Task*) {
+  Serial.println("sent heartbeat");
+  Can_Dash_Heartbeat_T msg;
+  msg.ok = true;
+  Can_Dash_Heartbeat_Write(&msg);
 }
