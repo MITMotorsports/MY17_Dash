@@ -15,6 +15,7 @@
 #include "Bms_Handler.h"
 #include "Vcu_Handler.h"
 #include "Button_Listener.h"
+#include "Critical_Page.h"
 
 static bool begun;
 
@@ -78,6 +79,9 @@ void Dispatcher::processButtonInputs() {
   Button_Listener::listen();
 }
 
+void Dispatcher::displayPages(){
+  Critical_Page::display();
+}
 void Dispatcher::dispatch() {
   processCanInputs();
   processButtonInputs();

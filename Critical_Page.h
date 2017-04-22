@@ -26,7 +26,7 @@ class Critical_Page {
     static void begin();
     static void setFlag(Flag field, bool state);
     static void setNumeric(Numeric field, int8_t value);
-    static void setNumeric(Numeric field, float value);
+    static void setNumeric(Numeric field, double value);
     static void setTakeover(Takeover field, bool state);
     static void display();
   private:

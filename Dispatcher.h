@@ -9,6 +9,7 @@ class Dispatcher {
   private:
     static void processCanInputs();
     static void processButtonInputs();
+    static void displayPages();
 };
 
 #endif // _DISPATCHER_H_

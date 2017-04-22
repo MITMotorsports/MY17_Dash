@@ -7,9 +7,9 @@ bool aeroOn = false;
 bool tcOn = false;
 bool regenOn = false;
 bool lvLow = false;
-bool soc = 0 ;
-bool temp = 0;
-bool power = 00.0;
+int8_t soc = 0 ;
+int8_t temp = 0;
+double power = 00.0;
 bool shutdownLoop = false;
 bool breakThrottle = false;
 
@@ -53,15 +53,40 @@ void Critical_Page::setFlag(Flag field, bool state){
 void Critical_Page::setFlagLight(Flag field){
   switch(field) {
     case LIMP:
-      Lcd_Controller::writeMessage(limpOn,0,0);
+      if (limpOn){
+        Lcd_Controller::writeMessage("LIMP",0,0);
+      }
+      if (!limpOn){
+        Lcd_Controller::writeMessage("    ",0,0);
+      }
     case AERO:
-      Lcd_Controller::writeMessage(aeroOn,5,0);
+      if (aeroOn){
+        Lcd_Controller::writeMessage("AE",5,0);
+      }
+      if (!aeroOn){
+        Lcd_Controller::writeMessage("  ",5,0);
+      }
     case TC:
-      Lcd_Controller::writeMessage(tcOn,8,0);
+      if (tcOn){
+        Lcd_Controller::writeMessage("TC",8,0);
+      }
+      if (!tcOn){
+        Lcd_Controller::writeMessage("  ",8,0);
+      }
     case REGEN:
-      Lcd_Controller::writeMessage(regenOn,11,0);
+      if (regenOn){
+        Lcd_Controller::writeMessage("RG",11,0);
+      }
+      if (!regenOn){
+        Lcd_Controller::writeMessage("  ",11,0);
+      }
     case LV:
-      Lcd_Controller::writeMessage(lvLow,14,0);
+      if (lvLow){
+        Lcd_Controller::writeMessage("LV",14,0);
+      }
+      if (!lvLow){
+        Lcd_Controller::writeMessage("  ",14,0);
+      }
   }
 }
 
@@ -83,10 +108,12 @@ void Critical_Page::setNumericLight(Numeric field){
 void Critical_Page::setTakeoverLight(Takeover field){
   switch(field){
     case SHUTDOWNLOOP:
+      Lcd_Controller::clearScreen();
       Lcd_Controller::writeMessage("SHUTDOWN",0,0);
       Lcd_Controller::writeMessage("LOOP",0,1);
       break;
     case BREAKTHROTTLE:
+      Lcd_Controller::clearScreen();
       Lcd_Controller::writeMessage("BREAK",0,0);
       Lcd_Controller::writeMessage("THROTTLE",0,1);
       break;
@@ -116,7 +143,7 @@ void Critical_Page::setNumeric(Numeric field, int8_t value){
   }
 }
 
-void Critical_Page::setNumeric(Numeric field, float value){
+void Critical_Page::setNumeric(Numeric field, double value){
   switch(field) {
     case SOC:
       soc = value;
