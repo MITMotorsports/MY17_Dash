@@ -71,6 +71,8 @@ void Dispatcher::processCanInputs() {
       Bms_Handler::handle_CellTemps();
       break;
     default:
+      Frame f;
+      Can_UnknownRead(&f);
       return;
   }
 }
@@ -92,7 +94,6 @@ void dispatchPointer(Task*) {
 }
 
 void sendHeartbeat(Task*) {
-  Serial.println("sent heartbeat");
   Can_Dash_Heartbeat_T msg;
   msg.ok = true;
   Can_Dash_Heartbeat_Write(&msg);
