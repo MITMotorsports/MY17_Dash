@@ -61,6 +61,9 @@ void Dispatcher::processCanInputs() {
   switch(type) {
     case Can_No_Msg:
       break;
+    case Can_Error_Msg:
+      // TODO error handling
+      break;
     case Can_Vcu_DashHeartbeat_Msg:
       Vcu_Handler::handle_DashHeartbeat();
       break;
@@ -72,7 +75,7 @@ void Dispatcher::processCanInputs() {
       break;
     default:
       Frame f;
-      Can_UnknownRead(&f);
+      Can_Unknown_Read(&f);
       return;
   }
 }
@@ -84,6 +87,7 @@ void Dispatcher::processButtonInputs() {
 void Dispatcher::displayPages(){
   Critical_Page::display();
 }
+
 void Dispatcher::dispatch() {
   processCanInputs();
   processButtonInputs();
