@@ -1,201 +1,162 @@
 #include "Critical_Page.h"
 #include <Arduino.h>
+#include <Wire.h>
 
-bool displayed = false;
-bool limpOn = false;
-bool aeroOn = false;
-bool tcOn = false;
-bool regenOn = false;
-bool lvLow = false;
-int8_t soc = 0 ;
-int8_t temp = 0;
-double power = 00.0;
-bool shutdownLoop = false;
-bool breakThrottle = false;
+#include <MY17_Can_Library.h>
+#include <LiquidCrystal.h>
+
+static bool displayed = false;
+
+// From VCU
+static bool limpOn = false;
+static bool aeroOn = false;
+static bool tcOn = false;
+static bool regenOn = false;
+static bool lvLow = false;
+static bool esd_fault = false;
+static bool vcu_fault = false;
+static bool bspd_fault = false;
+
+// From Current Sensor
+static int16_t power_cW = 0;
+
+// From BMS
+static uint8_t soc = 0;
+static uint8_t temp = 0;
+
+// From Can Node
+static bool brake_throttle = false;
+
+static String lastTop = "";
+static String lastBottom = "";
 
 void Critical_Page::begin(){
-}
-void Critical_Page::setFlag(Flag field, bool state){
-  switch(field) {
-    case LIMP:
-      limpOn = state;
-      if (displayed){
-        setFlagLight(LIMP);
-      }
-      break;
-    case AERO:
-      aeroOn = state;
-      if (displayed){
-        setFlagLight(AERO);
-      }
-      break;
-    case TC:
-      tcOn = state;
-      if (displayed){
-        setFlagLight(TC);
-      }
-      break;
-    case REGEN:
-      regenOn = state;
-      if (displayed){
-        setFlagLight(REGEN);
-      }
-      break;
-    case LV:
-      lvLow = state;
-      if (displayed){
-        setFlagLight(LV);
-      }
-      break;
-  }
+  // Nothing to do here
 }
 
-void Critical_Page::setFlagLight(Flag field){
-  switch(field) {
-    case LIMP:
-      if (limpOn){
-        Lcd_Controller::writeMessage("LIMP",0,0);
-      }
-      if (!limpOn){
-        Lcd_Controller::writeMessage("    ",0,0);
-      }
-    case AERO:
-      if (aeroOn){
-        Lcd_Controller::writeMessage("AE",5,0);
-      }
-      if (!aeroOn){
-        Lcd_Controller::writeMessage("  ",5,0);
-      }
-    case TC:
-      if (tcOn){
-        Lcd_Controller::writeMessage("TC",8,0);
-      }
-      if (!tcOn){
-        Lcd_Controller::writeMessage("  ",8,0);
-      }
-    case REGEN:
-      if (regenOn){
-        Lcd_Controller::writeMessage("RG",11,0);
-      }
-      if (!regenOn){
-        Lcd_Controller::writeMessage("  ",11,0);
-      }
-    case LV:
-      if (lvLow){
-        Lcd_Controller::writeMessage("LV",14,0);
-      }
-      if (!lvLow){
-        Lcd_Controller::writeMessage("  ",14,0);
-      }
-  }
+void Critical_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg){
+  limpOn = msg->limp_mode;
+  aeroOn = msg->active_aero;
+  tcOn = msg->traction_control;
+  regenOn = msg->regen;
+  lvLow = msg->lv_warning;
+
+  esd_fault = msg->shutdown_esd_drain;
+  bspd_fault = msg->shutdown_bspd;
+  vcu_fault = msg->shutdown_vcu;
 }
 
-
-void Critical_Page::setNumericLight(Numeric field){
-  switch(field) {
-    case SOC:
-      Lcd_Controller::writeMessage(soc,3,1);
-      break;
-    case TEMP:
-      Lcd_Controller::writeMessage(temp,6,1);
-      break;
-    case POWER:
-      Lcd_Controller::writeMessage(power,10,1);
-      break;
-  }
+void Critical_Page::process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg)
+{
+  int32_t power = msg->power_W / 100;
+  // This cast is safe because power will never go above 100 kW, or 1000 cW
+  power_cW = (int16_t) power;
 }
 
-void Critical_Page::setTakeoverLight(Takeover field){
-  switch(field){
-    case SHUTDOWNLOOP:
-      Lcd_Controller::clearScreen();
-      Lcd_Controller::writeMessage("SHUTDOWN",0,0);
-      Lcd_Controller::writeMessage("LOOP",0,1);
-      break;
-    case BREAKTHROTTLE:
-      Lcd_Controller::clearScreen();
-      Lcd_Controller::writeMessage("BREAK",0,0);
-      Lcd_Controller::writeMessage("THROTTLE",0,1);
-      break;
-  }
+void Critical_Page::process_FrontCanNode_DriverOutput(
+    Can_FrontCanNode_DriverOutput_T *msg) {
+  brake_throttle = msg->brake_throttle_conflict;
 }
 
-void Critical_Page::setNumeric(Numeric field, int8_t value){
-  switch(field) {
-    case SOC:
-      soc = value;
-      if (displayed){
-        setNumericLight(SOC);
-      }
-      break;
-    case TEMP:
-      temp = value;
-      if (displayed){
-        setNumericLight(TEMP);
-      }
-      break;
-    case POWER:
-      power = value;
-      if (displayed){
-        setNumericLight(POWER);
-      }
-      break;
-  }
+void Critical_Page::process_Bms_Heartbeat(Can_Bms_Heartbeat_T *msg) {
+  soc = msg->soc;
 }
 
-void Critical_Page::setNumeric(Numeric field, double value){
-  switch(field) {
-    case SOC:
-      soc = value;
-      if (displayed){
-        setNumericLight(SOC);
-      }
-      break;
-    case TEMP:
-      temp = value;
-      if (displayed){
-        setNumericLight(TEMP);
-      }
-      break;
-    case POWER:
-      power = value;
-      if (displayed){
-        setNumericLight(POWER);
-      }
-      break;
-  }
-}
-
-void Critical_Page::setTakeover(Takeover field, bool state){
-  switch(field){
-    case SHUTDOWNLOOP:
-      shutdownLoop = state;
-      if (displayed){
-        setTakeoverLight(SHUTDOWNLOOP);
-      };
-      break;
-    case BREAKTHROTTLE:
-      breakThrottle = state;
-      if (displayed){
-        setTakeoverLight(BREAKTHROTTLE);
-      };
-      break;
-  }
+void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
+  // max_cell_temp is in deci-celsius
+  int16_t max_temp_C = msg->max_cell_temp / 10;
+  // Car temp should never go above 255C, so this cast is safe
+  temp = (uint8_t) max_temp_C;
 }
 
 void Critical_Page::display(){
   //set the displayed flag to be true
   displayed = true;
-  //always clear the previous screem
-  Lcd_Controller::clearScreen();
-  //initialize the display with things that never change
-  Lcd_Controller::writeMessage("SOC     C     KW",0,0);
-  setFlagLight(LIMP);
-  setFlagLight(AERO);
-  setFlagLight(TC);
-  setFlagLight(REGEN);
-  setFlagLight(LV);
-  setNumericLight(SOC);
-  setNumericLight(TEMP);
-  setNumericLight(POWER);
+
+  // Update both rows if necessary
+  displayTopRow();
+  displayBottomRow();
+}
+
+void Critical_Page::displayTopRow() {
+  String line = "";
+  line.concat(limpOn ? "LIMP" : "    ");
+  line.concat(" ");
+  line.concat(aeroOn ? "AE" : "  ");
+  line.concat(" ");
+  line.concat(tcOn ? "TC" : "  ");
+  line.concat(" ");
+  line.concat(regenOn ? "RE" : "  ");
+  line.concat(" ");
+  line.concat(lvLow ? "LV" : "  ");
+  if (!line.equals(lastTop)) {
+    lastTop = line;
+    Lcd_Controller::writeMessage(line, 0, 0);
+  }
+}
+
+void Critical_Page::displayBottomRow() {
+  String line = "";
+  displaySoc(line);
+  displayTemp(line);
+  displayPower(line);
+  if (!line.equals(lastBottom)) {
+    lastBottom = line;
+    Lcd_Controller::writeMessage(line, 0, 1);
+  }
+}
+
+void Critical_Page::displaySoc(String& line) {
+  if (soc > 99) {
+    soc = 99;
+  }
+  line.concat("SOC");
+  String soc_string = String(soc);
+  bool two_digits = soc >= 10;
+  // We have asserted above that SOC is 99 or below
+  line.concat(two_digits ? soc_string.charAt(0) : '0');
+  line.concat(two_digits ? soc_string.charAt(1) : soc_string.charAt(0));
+  line.concat(" ");
+}
+
+void Critical_Page::displayTemp(String& line) {
+  if (temp > 99) {
+    temp = 99;
+  }
+  bool two_digits = temp >= 10;
+  String temp_string = String(temp);
+  line.concat(two_digits ? temp_string.charAt(0) : '0');
+  line.concat(two_digits ? temp_string.charAt(1) : temp_string.charAt(0));
+  line.concat("C");
+}
+
+void Critical_Page::displayPower(String& line) {
+  if (power_cW < 0) {
+    // TODO figure out where to display negative sign
+    power_cW = -1 * power_cW;
+    line.concat('-');
+  } else {
+    line.concat(' ');
+  }
+  if (power_cW > 999) {
+    power_cW = 999;
+  }
+  String power_string = String(power_cW);
+  if (power_cW >= 100) {
+    line.concat(power_string.charAt(0));
+    line.concat(power_string.charAt(1));
+    line.concat('.');
+    line.concat(power_string.charAt(2));
+  } else if (power_cW >= 10) {
+    line.concat('0');
+    line.concat(power_string.charAt(0));
+    line.concat('.');
+    line.concat(power_string.charAt(1));
+  } else {
+    line.concat('0');
+    line.concat('0');
+    line.concat('.');
+    line.concat(power_string.charAt(0));
+  }
+  line.concat("kW");
 }

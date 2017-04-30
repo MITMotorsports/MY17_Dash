@@ -6,10 +6,10 @@ class Dispatcher {
     static void step();
     static void begin();
     static void dispatch();
+    static void displayPages();
   private:
     static void processCanInputs();
     static void processButtonInputs();
-    static void displayPages();
 };
 
 #endif // _DISPATCHER_H_

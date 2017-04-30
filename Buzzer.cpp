@@ -1,6 +1,8 @@
 #include "Buzzer.h"
 #include "Pins.h"
 
+bool enabled = BUZZER_ENABLED;
+
 void Buzzer::begin() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);

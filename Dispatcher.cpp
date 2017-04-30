@@ -5,22 +5,26 @@
 #include <DelayRun.h>
 #include <Debouncer.h>
 #include <Bounce2.h>
-#include <Timer.h>
 
 #include <MY17_Can_Library.h>
 
 #include "Lcd_Controller.h"
 #include "Led_Controller.h"
+#include "Buzzer.h"
 
 #include "Bms_Handler.h"
 #include "Vcu_Handler.h"
 #include "Button_Listener.h"
+#include "Current_Sensor_Handler.h"
 #include "Critical_Page.h"
 
 static bool begun;
 
 void dispatchPointer(Task*);
 Task dispatchTask(0, dispatchPointer);
+
+void displayPointer(Task*);
+Task displayTask(50, displayPointer);
 
 void sendHeartbeat(Task*);
 Task heartbeatTask(1000, sendHeartbeat);
@@ -38,6 +42,9 @@ void Dispatcher::begin() {
   // Initialize CAN controller
   Can_Init(500000);
 
+  // Initialize buzzer
+  Buzzer::begin();
+
   // Initialize button listener
   Button_Listener::begin();
 
@@ -54,6 +61,7 @@ void Dispatcher::begin() {
   Serial.println("Dash Initialized");
   SoftTimer.add(&dispatchTask);
   SoftTimer.add(&heartbeatTask);
+  SoftTimer.add(&displayTask);
 }
 
 void Dispatcher::processCanInputs() {
@@ -72,6 +80,9 @@ void Dispatcher::processCanInputs() {
       break;
     case Can_Bms_CellTemps_Msg:
       Bms_Handler::handle_CellTemps();
+      break;
+    case Can_CurrentSensor_Power_Msg:
+      Current_Sensor_Handler::handle_Power();
       break;
     default:
       Frame f;
@@ -95,6 +106,10 @@ void Dispatcher::dispatch() {
 
 void dispatchPointer(Task*) {
   Dispatcher::dispatch();
+}
+
+void displayPointer(Task*) {
+  Dispatcher::displayPages();
 }
 
 void sendHeartbeat(Task*) {

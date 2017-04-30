@@ -29,15 +29,7 @@ void Vcu_Handler::updateLeds(Can_Vcu_DashHeartbeat_T *msg) {
 }
 
 void Vcu_Handler::updatePageInfo(Can_Vcu_DashHeartbeat_T *msg) {
-  Critical_Page::setFlag(LIMP, msg->limp_mode);
-  Critical_Page::setFlag(AERO, msg->active_aero);
-  Critical_Page::setFlag(TC, msg->traction_control);
-  Critical_Page::setFlag(REGEN, msg->regen);
-  Critical_Page::setFlag(LV, msg->lv_warning);
-  if (msg->rtd_light) {
-    // TODO
-    buzzer.trigger(100);
-  }
+  Critical_Page::process_Vcu_DashHeartbeat(msg);
 }
 
 void Vcu_Handler::setLight(LightType type, bool desiredState){
