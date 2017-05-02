@@ -5,17 +5,12 @@
 #include <MY17_Can_Library.h>
 #include <LiquidCrystal.h>
 
-static bool displayed = false;
-
 // From VCU
 static bool limpOn = false;
 static bool aeroOn = false;
 static bool tcOn = false;
 static bool regenOn = false;
 static bool lvLow = false;
-static bool esd_fault = false;
-static bool vcu_fault = false;
-static bool bspd_fault = false;
 
 // From Current Sensor
 static int16_t power_cW = 0;
@@ -40,10 +35,6 @@ void Critical_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg){
   tcOn = msg->traction_control;
   regenOn = msg->regen;
   lvLow = msg->lv_warning;
-
-  esd_fault = msg->shutdown_esd_drain;
-  bspd_fault = msg->shutdown_bspd;
-  vcu_fault = msg->shutdown_vcu;
 }
 
 void Critical_Page::process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg)
@@ -70,9 +61,6 @@ void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
 }
 
 void Critical_Page::display(){
-  //set the displayed flag to be true
-  displayed = true;
-
   // Update both rows if necessary
   displayTopRow();
   displayBottomRow();
@@ -131,23 +119,24 @@ void Critical_Page::displayTemp(String& line) {
 }
 
 void Critical_Page::displayPower(String& line) {
+  int16_t power_disp = power_cW;
   if (power_cW < 0) {
-    // TODO figure out where to display negative sign
-    power_cW = -1 * power_cW;
+    power_disp = -1 * power_disp;
     line.concat('-');
   } else {
     line.concat(' ');
   }
   if (power_cW > 999) {
-    power_cW = 999;
+    power_disp = 999;
   }
-  String power_string = String(power_cW);
-  if (power_cW >= 100) {
+
+  String power_string = String(power_disp);
+  if (power_disp >= 100) {
     line.concat(power_string.charAt(0));
     line.concat(power_string.charAt(1));
     line.concat('.');
     line.concat(power_string.charAt(2));
-  } else if (power_cW >= 10) {
+  } else if (power_disp >= 10) {
     line.concat('0');
     line.concat(power_string.charAt(0));
     line.concat('.');
