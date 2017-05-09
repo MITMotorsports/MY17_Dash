@@ -60,14 +60,8 @@ void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
   temp = (uint8_t) max_temp_C;
 }
 
-void Critical_Page::display(){
-  // Update both rows if necessary
-  displayTopRow();
-  displayBottomRow();
-}
-
-void Critical_Page::displayTopRow() {
-  String line = "";
+void Critical_Page::top(String& line) {
+  line.remove(0);
   line.concat(limpOn ? "LIMP" : "    ");
   line.concat(" ");
   line.concat(aeroOn ? "AE" : "  ");
@@ -77,21 +71,13 @@ void Critical_Page::displayTopRow() {
   line.concat(regenOn ? "RE" : "  ");
   line.concat(" ");
   line.concat(lvLow ? "LV" : "  ");
-  if (!line.equals(lastTop)) {
-    lastTop = line;
-    Lcd_Controller::writeMessage(line, 0, 0);
-  }
 }
 
-void Critical_Page::displayBottomRow() {
-  String line = "";
+void Critical_Page::bottom(String& line) {
+  line.remove(0);
   displaySoc(line);
   displayTemp(line);
   displayPower(line);
-  if (!line.equals(lastBottom)) {
-    lastBottom = line;
-    Lcd_Controller::writeMessage(line, 0, 1);
-  }
 }
 
 void Critical_Page::displaySoc(String& line) {

@@ -1,7 +1,7 @@
 #include "Buzzer.h"
 #include "Pins.h"
 
-bool enabled = BUZZER_ENABLED;
+static bool enabled = true;
 
 void Buzzer::begin() {
   pinMode(BUZZER_PIN, OUTPUT);

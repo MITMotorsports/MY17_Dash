@@ -12,11 +12,8 @@
 #include "Led_Controller.h"
 #include "Buzzer.h"
 
-#include "Bms_Handler.h"
-#include "Vcu_Handler.h"
+#include "Page_Manager.h"
 #include "Button_Listener.h"
-#include "Current_Sensor_Handler.h"
-#include "Critical_Page.h"
 
 static bool begun;
 
@@ -54,9 +51,8 @@ void Dispatcher::begin() {
   // Initialize LCD screen
   Lcd_Controller::begin();
 
-  // Initialize handlers
-  Vcu_Handler::begin();
-  Bms_Handler::begin();
+  // Initialize pages
+  Page_Manager::begin();
 
   Serial.println("Dash Initialized");
   SoftTimer.add(&dispatchTask);
@@ -72,22 +68,13 @@ void Dispatcher::processCanInputs() {
     case Can_Error_Msg:
       // TODO error handling
       break;
-    case Can_Vcu_DashHeartbeat_Msg:
-      Vcu_Handler::handle_DashHeartbeat();
-      break;
-    case Can_Bms_Heartbeat_Msg:
-      Bms_Handler::handle_Heartbeat();
-      break;
-    case Can_Bms_CellTemps_Msg:
-      Bms_Handler::handle_CellTemps();
-      break;
-    case Can_CurrentSensor_Power_Msg:
-      Current_Sensor_Handler::handle_Power();
-      break;
-    default:
+    case Can_Unknown_Msg:
       Frame f;
       Can_Unknown_Read(&f);
-      return;
+      break;
+    default:
+      Page_Manager::process_msg(type);
+      break;
   }
 }
 
@@ -96,7 +83,7 @@ void Dispatcher::processButtonInputs() {
 }
 
 void Dispatcher::displayPages(){
-  Critical_Page::display();
+  Page_Manager::display();
 }
 
 void Dispatcher::dispatch() {
