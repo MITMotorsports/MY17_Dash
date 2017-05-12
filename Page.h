@@ -25,6 +25,11 @@ class Page {
     virtual void process_Bms_PackStatus(Can_Bms_PackStatus_T *msg);
     virtual void process_Bms_Error(Can_Bms_Error_T *msg);
 
+    virtual void process_MC_DataReading(Can_MC_DataReading_T *msg);
+    // TODO
+    // virtual void process_MC_ErrorAndWarning(Can_MC_ErrorAndWarning_T *msg);
+    // virtual void process_MC_State(Can_MC_State_T *msg);
+
     virtual void process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg);
     virtual void process_CurrentSensor_Voltage(Can_CurrentSensor_Voltage_T *msg);
     virtual void process_CurrentSensor_Current(Can_CurrentSensor_Current_T *msg);

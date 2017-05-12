@@ -6,9 +6,8 @@
 #include "Page.h"
 
 enum {
-  CRITICAL_PAGE,
-  OTHER_PAGE,
   TAKEOVER_PAGE,
+  CRITICAL_PAGE,
   NUM_PAGES
 };
 

@@ -19,15 +19,8 @@ static int16_t power_cW = 0;
 static uint8_t soc = 0;
 static uint8_t temp = 0;
 
-// From Can Node
-static bool brake_throttle = false;
-
 static String lastTop = "";
 static String lastBottom = "";
-
-void Critical_Page::begin(){
-  // Nothing to do here
-}
 
 void Critical_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg){
   limpOn = msg->limp_mode;
@@ -44,11 +37,6 @@ void Critical_Page::process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg)
   power_cW = (int16_t) power;
 }
 
-void Critical_Page::process_FrontCanNode_DriverOutput(
-    Can_FrontCanNode_DriverOutput_T *msg) {
-  brake_throttle = msg->brake_throttle_conflict;
-}
-
 void Critical_Page::process_Bms_Heartbeat(Can_Bms_Heartbeat_T *msg) {
   soc = msg->soc;
 }
@@ -61,7 +49,6 @@ void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
 }
 
 void Critical_Page::top(String& line) {
-  line.remove(0);
   line.concat(limpOn ? "LIMP" : "    ");
   line.concat(" ");
   line.concat(aeroOn ? "AE" : "  ");
@@ -74,7 +61,6 @@ void Critical_Page::top(String& line) {
 }
 
 void Critical_Page::bottom(String& line) {
-  line.remove(0);
   displaySoc(line);
   displayTemp(line);
   displayPower(line);

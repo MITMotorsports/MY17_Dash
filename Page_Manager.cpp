@@ -2,10 +2,11 @@
 
 #include "Buzzer.h"
 #include "Led_Controller.h"
+#include "Lcd_Controller.h"
 
 #include "Page.h"
 #include "Critical_Page.h"
-//#include "Takeover_Page.h"
+#include "Takeover_Page.h"
 //#include "Misc_Page.h"
 
 static Page pages[NUM_PAGES];
@@ -15,7 +16,7 @@ static String last_top = "                ";
 static String last_bottom = "                ";
 
 void Page_Manager::begin() {
-  // pages[TAKEOVER_PAGE] = Takeover_Page();
+  pages[TAKEOVER_PAGE] = Takeover_Page();
   pages[CRITICAL_PAGE] = Critical_Page();
 }
 
@@ -133,6 +134,11 @@ PROCESS(Bms_CellTemps)
 PROCESS(Bms_PackStatus)
 PROCESS(Bms_Error)
 
+PROCESS(MC_DataReading)
+// TODO
+// PROCESS(MC_ErrorAndWarning)
+// PROCESS(MC_State)
+
 PROCESS(CurrentSensor_Power)
 PROCESS(CurrentSensor_Voltage)
 PROCESS(CurrentSensor_Current)
@@ -140,13 +146,14 @@ PROCESS(CurrentSensor_Energy)
 
 void Page_Manager::process_msg(Can_MsgID_T type) {
   switch(type) {
+
     CASE(FrontCanNode_DriverOutput)
     CASE(FrontCanNode_RawValues)
     CASE(FrontCanNode_WheelSpeed)
     CASE(RearCanNode_WheelSpeed)
 
     CASE(Vcu_BmsHeartbeat)
-    // No special case for dash necessary here
+    // No special behavior for dash necessary here
     CASE(Vcu_DashHeartbeat)
 
     CASE(Bms_Heartbeat)
@@ -154,11 +161,25 @@ void Page_Manager::process_msg(Can_MsgID_T type) {
     CASE(Bms_PackStatus)
     CASE(Bms_Error)
 
+    CASE(MC_DataReading)
+    // TODO
+    // CASE(MC_ErrorAndWarning)
+    // CASE(MC_State)
+
     CASE(CurrentSensor_Power)
     CASE(CurrentSensor_Voltage)
     CASE(CurrentSensor_Current)
     CASE(CurrentSensor_Energy)
 
+    case Can_No_Msg:
+      break;
+    case Can_Error_Msg:
+      // TODO error handling
+      break;
+    case Can_Unknown_Msg:
+      Frame f;
+      Can_Unknown_Read(&f);
+      break;
     default:
       // Do nothing
       break;

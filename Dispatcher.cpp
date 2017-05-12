@@ -62,20 +62,7 @@ void Dispatcher::begin() {
 
 void Dispatcher::processCanInputs() {
   Can_MsgID_T type = Can_MsgType();
-  switch(type) {
-    case Can_No_Msg:
-      break;
-    case Can_Error_Msg:
-      // TODO error handling
-      break;
-    case Can_Unknown_Msg:
-      Frame f;
-      Can_Unknown_Read(&f);
-      break;
-    default:
-      Page_Manager::process_msg(type);
-      break;
-  }
+  Page_Manager::process_msg(type);
 }
 
 void Dispatcher::processButtonInputs() {
