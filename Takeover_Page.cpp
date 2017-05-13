@@ -1,7 +1,10 @@
 #include "Takeover_Page.h"
 
 typedef enum {
-  Takeover_Bms_Fault = 0,
+  Takeover_Master_Reset = 0,
+  Takeover_Driver_Reset,
+
+  Takeover_Bms_Fault,
   Takeover_Imd_Fault,
   Takeover_Bspd_Fault,
   Takeover_Esd_Fault,
@@ -80,6 +83,9 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
 
   bool rtd_not_on = !msg->rtd_light;
   updateTakeoverField(rtd_not_on, Takeover_Rtd_Off);
+
+  updateTakeoverField(msg->master_reset_not_initialized, Takeover_Master_Reset);
+  updateTakeoverField(msg->driver_reset_not_initialized, Takeover_Driver_Reset);
 }
 
 void Takeover_Page::process_FrontCanNode_DriverOutput(
@@ -122,6 +128,7 @@ void topMsg(String& line, Takeover_Order idx) {
     case Takeover_Bms_Fault:
     case Takeover_Imd_Fault:
     case Takeover_Bspd_Fault:
+    case Takeover_Esd_Fault:
     case Takeover_Tsms_Fault:
     case Takeover_Front_Can_Dead:
     case Takeover_Rear_Can_Dead:
@@ -135,7 +142,8 @@ void topMsg(String& line, Takeover_Order idx) {
       break;
 
       // Note: out of order but wanted to prevent duplicate code
-    case Takeover_Esd_Fault:
+    case Takeover_Master_Reset:
+    case Takeover_Driver_Reset:
     case Takeover_Driver_Reset_Open:
     case Takeover_Brake_Released:
       line.concat("   PRESS");
@@ -166,6 +174,9 @@ void topMsg(String& line, Takeover_Order idx) {
 
 void bottomMsg(String& line, Takeover_Order idx) {
   switch(idx) {
+    case Takeover_Master_Reset:
+      line.concat(" M RESET");
+      break;
     case Takeover_Bms_Fault:
     case Takeover_Bms_Dead:
       line.concat("     BMS");
@@ -177,7 +188,10 @@ void bottomMsg(String& line, Takeover_Order idx) {
       line.concat("    BSPD");
       break;
     case Takeover_Esd_Fault:
+      line.concat("SHUTDOWN");
+      break;
     case Takeover_Driver_Reset_Open:
+    case Takeover_Driver_Reset:
       line.concat(" D RESET");
       break;
     case Takeover_Tsms_Fault:
