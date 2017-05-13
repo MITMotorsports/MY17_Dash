@@ -18,6 +18,7 @@ static int16_t power_cW = 0;
 // From BMS
 static uint8_t soc = 0;
 static uint8_t temp = 0;
+static uint16_t min_cell_voltage = 0;
 
 static String lastTop = "";
 static String lastBottom = "";
@@ -48,6 +49,11 @@ void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
   temp = (uint8_t) max_temp_C;
 }
 
+void Critical_Page::process_Bms_PackStatus(Can_Bms_PackStatus_T *msg) {
+  // cell voltage is in mV
+  min_cell_voltage = msg->min_cell_voltage;
+}
+
 void Critical_Page::top(String& line) {
   line.concat(limpOn ? "LIMP" : "    ");
   line.concat(" ");
@@ -61,11 +67,28 @@ void Critical_Page::top(String& line) {
 }
 
 void Critical_Page::bottom(String& line) {
-  displaySoc(line);
+  // TODO when soc finished if ever
+  //displaySoc(line);
+
+  displayLowestCell(line);
   displayTemp(line);
   displayPower(line);
 }
 
+void Critical_Page::displayLowestCell(String& line) {
+  if (min_cell_voltage < 100) {
+    // Lowest cell is below 1 volt so something is very wrong
+    line.concat("RIP:(");
+  } else {
+    String voltage_string = String(min_cell_voltage);
+    line.concat(voltage_string.charAt(0));
+    line.concat(".");
+    line.concat(voltage_string.charAt(1));
+    line.concat(voltage_string.charAt(2));
+    line.concat("V");
+    line.concat(" ");
+  }
+}
 void Critical_Page::displaySoc(String& line) {
   if (soc > 99) {
     soc = 99;

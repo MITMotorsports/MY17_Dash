@@ -13,7 +13,9 @@ class Critical_Page : public Page {
     void process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg);
     void process_Bms_Heartbeat(Can_Bms_Heartbeat_T *msg);
     void process_Bms_CellTemps(Can_Bms_CellTemps_T *msg);
+    void process_Bms_PackStatus(Can_Bms_PackStatus_T *msg);
   private:
+    void displayLowestCell(String& line);
     void displaySoc(String& line);
     void displayTemp(String& line);
     void displayPower(String& line);
