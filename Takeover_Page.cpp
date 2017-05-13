@@ -70,8 +70,12 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->shutdown_esd_drain, Takeover_Esd_Fault);
   updateTakeoverField(msg->tsms_off, Takeover_Tsms_Fault);
 
+
+  // TODO when rear can node finished
+  // updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
+  updateTakeoverField(false, Takeover_Rear_Can_Dead);
+
   updateTakeoverField(msg->heartbeat_front_can_node_dead, Takeover_Front_Can_Dead);
-  updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
   updateTakeoverField(msg->heartbeat_bms_dead, Takeover_Bms_Dead);
   updateTakeoverField(msg->heartbeat_dash_dead, Takeover_Dash_Dead);
   updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
