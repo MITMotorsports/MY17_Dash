@@ -3,8 +3,7 @@
 // All methods have default no-op implementations
 void Page::begin() { }
 bool Page::shouldDisplay() { return true; }
-void Page::top(String& line) { }
-void Page::bottom(String& line) { }
+void Page::screen(String& top, String& bottom) { }
 
 void Page::process_FrontCanNode_DriverOutput(Can_FrontCanNode_DriverOutput_T *msg) { }
 void Page::process_FrontCanNode_RawValues(Can_FrontCanNode_RawValues_T *msg) { }

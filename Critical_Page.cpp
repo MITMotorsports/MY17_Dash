@@ -54,7 +54,12 @@ void Critical_Page::process_Bms_PackStatus(Can_Bms_PackStatus_T *msg) {
   min_cell_voltage = msg->min_cell_voltage;
 }
 
-void Critical_Page::top(String& line) {
+void Critical_Page::screen(String& top, String& bottom) {
+  top_line(top);
+  bottom_line(bottom);
+}
+
+void Critical_Page::top_line(String& line) {
   line.concat(limpOn ? "LIMP" : "    ");
   line.concat(" ");
   line.concat(aeroOn ? "AE" : "  ");
@@ -66,7 +71,7 @@ void Critical_Page::top(String& line) {
   line.concat(lvLow ? "LV" : "  ");
 }
 
-void Critical_Page::bottom(String& line) {
+void Critical_Page::bottom_line(String& line) {
   // TODO when soc finished if ever
   //displaySoc(line);
 

@@ -1,5 +1,7 @@
 #include "Takeover_Page.h"
 
+#include <Arduino.h>
+
 typedef enum {
   Takeover_Master_Reset = 0,
   Takeover_Driver_Reset,
@@ -24,7 +26,7 @@ typedef enum {
   Takeover_Rtd_Off,
 
   // Rationale: motor faults are cleared on RTD, so only surface them afterward
-  Takeover_Mc_Fault,
+  Takeover_MC_Fault,
 
   Takeover_Throttle_Implausible,
   Takeover_Brake_Throttle_Conflict,
@@ -34,32 +36,111 @@ typedef enum {
 
 static uint32_t takeover_bitfield = 0;
 
-void topMsg(String& line, Takeover_Order idx);
-void bottomMsg(String& line, Takeover_Order idx);
 Takeover_Order getTakeover();
 void updateTakeoverField(bool state, Takeover_Order idx);
-
-// Shortcut to prevent looping twice
-Takeover_Order lastError = Takeover_Length;
+void error_to_string(Takeover_Order error, String& top, String& bottom);
 
 bool Takeover_Page::shouldDisplay() {
   return takeover_bitfield != 0;
 }
 
-void Takeover_Page::top(String& line) {
-  lastError = getTakeover();
-  if (lastError != Takeover_Length) {
-    line.concat("********");
-    topMsg(line, lastError);
+void Takeover_Page::screen(String& top, String& bottom) {
+  Takeover_Order error = getTakeover();
+  if (error != Takeover_Length) {
+    top.concat("********");
+    bottom.concat("********");
+    error_to_string(error, top, bottom);
   }
 }
 
-void Takeover_Page::bottom(String& line) {
-  // TODO can remove this if somehow performance problems
-  lastError = getTakeover();
-  if (lastError != Takeover_Length) {
-    line.concat("********");
-    bottomMsg(line, lastError);
+void error_to_string(Takeover_Order error, String& top, String& bot) {
+  switch(error) {
+    case Takeover_Master_Reset:
+      top.concat("   PRESS");
+      bot.concat(" M RESET");
+      break;
+    case Takeover_Driver_Reset:
+      top.concat("   PRESS");
+      bot.concat(" D RESET");
+      break;
+    case Takeover_Bms_Fault:
+      top.concat("   CHECK");
+      bot.concat("     BMS");
+      break;
+    case Takeover_Imd_Fault:
+      top.concat("   CHECK");
+      bot.concat("     IMD");
+      break;
+    case Takeover_Bspd_Fault:
+      top.concat("   CHECK");
+      bot.concat("    BSPD");
+      break;
+    case Takeover_Esd_Fault:
+      top.concat("   CHECK");
+      bot.concat("SHUTDOWN");
+      break;
+    case Takeover_Tsms_Fault:
+      top.concat("   CHECK");
+      bot.concat("    TSMS");
+      break;
+    case Takeover_Front_Can_Dead:
+      top.concat("   CHECK");
+      bot.concat(" FR NODE");
+      break;
+    case Takeover_Rear_Can_Dead:
+      top.concat("   CHECK");
+      bot.concat(" RE NODE");
+      break;
+    case Takeover_Bms_Dead:
+      top.concat("   CHECK");
+      bot.concat("     BMS");
+      break;
+    case Takeover_MC_Dead:
+      top.concat("   CHECK");
+      bot.concat("MTR CONT");
+      break;
+    case Takeover_Dash_Dead:
+      // Pretty sure this will never happen
+      top.concat("   CHECK");
+      bot.concat("    DASH");
+      break;
+    case Takeover_Current_Sensor_Dead:
+      top.concat("   CHECK");
+      bot.concat("CURR SNS");
+      break;
+    case Takeover_Driver_Reset_Open:
+      top.concat("   PRESS");
+      bot.concat(" D RESET");
+      break;
+    case Takeover_Precharge_Running:
+      top.concat("AWAITING");
+      bot.concat("PRE CHRG");
+      break;
+    case Takeover_Brake_Released:
+      top.concat("   PRESS");
+      bot.concat("   BRAKE");
+      break;
+    case Takeover_Rtd_Off:
+      top.concat("    HOLD");
+      bot.concat("     RTD");
+      break;
+    case Takeover_MC_Fault:
+      top.concat("MTR CONT");
+      bot.concat("   FAULT");
+      break;
+    case Takeover_Throttle_Implausible:
+      top.concat("THROTTLE");
+      bot.concat(" IMPLAUS");
+      break;
+    case Takeover_Brake_Throttle_Conflict:
+      top.concat(" RELEASE");
+      bot.concat("THROTTLE");
+      break;
+    case Takeover_Length:
+      // Should never happen
+      top.concat("BUG!BUG!");
+      bot.concat("BUG!BUG!");
+      break;
   }
 }
 
@@ -70,7 +151,6 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->shutdown_esd_drain, Takeover_Esd_Fault);
   updateTakeoverField(msg->tsms_off, Takeover_Tsms_Fault);
 
-
   // TODO when rear can node finished
   // updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
   updateTakeoverField(false, Takeover_Rear_Can_Dead);
@@ -78,12 +158,17 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->heartbeat_front_can_node_dead, Takeover_Front_Can_Dead);
   updateTakeoverField(msg->heartbeat_bms_dead, Takeover_Bms_Dead);
   updateTakeoverField(msg->heartbeat_dash_dead, Takeover_Dash_Dead);
-  updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
+
+  // TODO when we request/respond from mc
+  // updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
+  updateTakeoverField(false, Takeover_MC_Dead);
+
   updateTakeoverField(
       msg->heartbeat_current_sensor_dead, Takeover_Current_Sensor_Dead);
 
   updateTakeoverField(msg->reset_latch_open, Takeover_Driver_Reset_Open);
   updateTakeoverField(msg->precharge_running, Takeover_Precharge_Running);
+
 
   bool rtd_not_on = !msg->rtd_light;
   updateTakeoverField(rtd_not_on, Takeover_Rtd_Off);
@@ -126,114 +211,3 @@ Takeover_Order getTakeover() {
   }
   return Takeover_Length;
 }
-
-void topMsg(String& line, Takeover_Order idx) {
-  switch(idx) {
-    case Takeover_Bms_Fault:
-    case Takeover_Imd_Fault:
-    case Takeover_Bspd_Fault:
-    case Takeover_Esd_Fault:
-    case Takeover_Tsms_Fault:
-    case Takeover_Front_Can_Dead:
-    case Takeover_Rear_Can_Dead:
-    case Takeover_Bms_Dead:
-    case Takeover_MC_Dead:
-    case Takeover_Dash_Dead:
-    case Takeover_Current_Sensor_Dead:
-      // Note: out of order but wanted to prevent duplicate code
-    case Takeover_Mc_Fault:
-      line.concat("   CHECK");
-      break;
-
-      // Note: out of order but wanted to prevent duplicate code
-    case Takeover_Master_Reset:
-    case Takeover_Driver_Reset:
-    case Takeover_Driver_Reset_Open:
-    case Takeover_Brake_Released:
-      line.concat("   PRESS");
-      break;
-
-    case Takeover_Precharge_Running:
-      line.concat("AWAITING");
-      break;
-
-    case Takeover_Rtd_Off:
-      line.concat("    HOLD");
-      break;
-
-    case Takeover_Throttle_Implausible:
-      line.concat("THROTTLE");
-      break;
-
-    case Takeover_Brake_Throttle_Conflict:
-      line.concat(" RELEASE");
-      break;
-
-    case Takeover_Length:
-      // Should never happen
-      line.concat("BUG!BUG!");
-      break;
-  }
-}
-
-void bottomMsg(String& line, Takeover_Order idx) {
-  switch(idx) {
-    case Takeover_Master_Reset:
-      line.concat(" M RESET");
-      break;
-    case Takeover_Bms_Fault:
-    case Takeover_Bms_Dead:
-      line.concat("     BMS");
-      break;
-    case Takeover_Imd_Fault:
-      line.concat("     IMD");
-      break;
-    case Takeover_Bspd_Fault:
-      line.concat("    BSPD");
-      break;
-    case Takeover_Esd_Fault:
-      line.concat("SHUTDOWN");
-      break;
-    case Takeover_Driver_Reset_Open:
-    case Takeover_Driver_Reset:
-      line.concat(" D RESET");
-      break;
-    case Takeover_Tsms_Fault:
-      line.concat("    TSMS");
-      break;
-    case Takeover_Front_Can_Dead:
-      line.concat(" FR NODE");
-      break;
-    case Takeover_Rear_Can_Dead:
-      line.concat(" RE NODE");
-      break;
-    case Takeover_MC_Dead:
-    case Takeover_Mc_Fault:
-      line.concat("MTR CONT");
-      break;
-    case Takeover_Dash_Dead:
-      line.concat("    DASH");
-      break;
-    case Takeover_Current_Sensor_Dead:
-      line.concat("CURR SNS");
-      break;
-    case Takeover_Precharge_Running:
-      line.concat("PRE CHRG");
-      break;
-    case Takeover_Rtd_Off:
-      line.concat(" RTD BTN");
-      break;
-    case Takeover_Throttle_Implausible:
-      line.concat(" IMPLAUS");
-      break;
-    case Takeover_Brake_Released:
-    case Takeover_Brake_Throttle_Conflict:
-      line.concat("   BRAKE");
-      break;
-    case Takeover_Length:
-      // Should never happen
-      line.concat("BUG!BUG!");
-      break;
-  }
-}
-

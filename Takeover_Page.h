@@ -6,9 +6,9 @@
 #include "Page.h"
 
 class Takeover_Page : public Page {
+  public:
     bool shouldDisplay();
-    void top(String& line);
-    void bottom(String& line);
+    void screen(String& top, String& bottom);
     void process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg);
     void process_FrontCanNode_DriverOutput(Can_FrontCanNode_DriverOutput_T *msg);
     void process_MC_ErrorAndWarning(Can_MC_ErrorAndWarning_T *msg);
