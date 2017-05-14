@@ -40,8 +40,11 @@ Takeover_Order getTakeover();
 void updateTakeoverField(bool state, Takeover_Order idx);
 void error_to_string(Takeover_Order error, String& top, String& bottom);
 
+// TODO this is pretty hacky
+static bool enabled = false;
+
 bool Takeover_Page::shouldDisplay() {
-  return takeover_bitfield != 0;
+  return takeover_bitfield != 0UL;
 }
 
 void Takeover_Page::screen(String& top, String& bottom) {
@@ -169,8 +172,11 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->reset_latch_open, Takeover_Driver_Reset_Open);
   updateTakeoverField(msg->precharge_running, Takeover_Precharge_Running);
 
+  enabled = msg->rtd_light;
 
-  bool rtd_not_on = !msg->rtd_light;
+  bool rtd_not_on = !enabled;
+  Serial.println(String(rtd_not_on));
+
   updateTakeoverField(rtd_not_on, Takeover_Rtd_Off);
 
   updateTakeoverField(msg->master_reset_not_initialized, Takeover_Master_Reset);
@@ -185,7 +191,7 @@ void Takeover_Page::process_FrontCanNode_DriverOutput(
       msg->brake_throttle_conflict, Takeover_Brake_Throttle_Conflict);
 
   bool brake_released = !msg->brake_engaged;
-  updateTakeoverField(brake_released, Takeover_Brake_Released);
+  updateTakeoverField(!enabled && brake_released, Takeover_Brake_Released);
 }
 
 void Takeover_Page::process_MC_ErrorAndWarning(Can_MC_ErrorAndWarning_T *msg) {
@@ -194,15 +200,15 @@ void Takeover_Page::process_MC_ErrorAndWarning(Can_MC_ErrorAndWarning_T *msg) {
 
 void updateTakeoverField(bool state, Takeover_Order idx) {
   if (state) {
-    takeover_bitfield |= 1 << idx;
+    takeover_bitfield |= 1UL << idx;
   } else {
-    takeover_bitfield &= ~(1 << idx);
+    takeover_bitfield &= ~(1UL << idx);
   }
 }
 
 Takeover_Order getTakeover() {
   for(uint8_t i = 0; i < Takeover_Length; i++) {
-    if (takeover_bitfield & (1 << i)) {
+    if (takeover_bitfield & (1UL << i)) {
       // This cast is safe because Takeover_Order begins at zero and
       // is guaranteed by the for loop to be less than length, as long
       // as Takeover_Length is the final value in the enum
