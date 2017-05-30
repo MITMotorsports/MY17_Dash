@@ -96,7 +96,7 @@ void error_to_string(Takeover_Order error, String& top, String& bot) {
       break;
     case Takeover_Bms_Dead:
       top.concat("   CHECK");
-      bot.concat("     BMS");
+      bot.concat(" BMS CAN");
       break;
     case Takeover_MC_Dead:
       top.concat("   CHECK");
