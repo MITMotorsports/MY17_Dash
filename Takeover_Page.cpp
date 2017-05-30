@@ -36,6 +36,9 @@ typedef enum {
 
 static uint32_t takeover_bitfield = 0;
 
+static uint16_t lv_voltage = 0;
+static uint16_t brake_raw = 0;
+
 Takeover_Order getTakeover();
 void updateTakeoverField(bool state, Takeover_Order idx);
 void error_to_string(Takeover_Order error, String& top, String& bottom);
@@ -47,11 +50,42 @@ bool Takeover_Page::shouldDisplay() {
   return takeover_bitfield != 0UL;
 }
 
+void concat_3(uint16_t num, String& line) {
+  uint16_t disp = num;
+  if (disp > 999) {
+    disp = 999;
+  }
+  String disp_string = String(disp);
+
+  if (disp >= 100) {
+    line.concat(disp_string.charAt(0));
+    line.concat(disp_string.charAt(1));
+    line.concat(disp_string.charAt(2));
+  } else if (disp >= 10) {
+    line.concat('0');
+    line.concat(disp_string.charAt(0));
+    line.concat(disp_string.charAt(1));
+  } else {
+    line.concat('0');
+    line.concat('0');
+    line.concat(disp_string.charAt(0));
+  }
+}
+
 void Takeover_Page::screen(String& top, String& bottom) {
   Takeover_Order error = getTakeover();
-  if (error != Takeover_Length) {
+  if (error < Takeover_Brake_Released) {
     top.concat("********");
     bottom.concat("********");
+    error_to_string(error, top, bottom);
+  } else if (error < Takeover_Length) {
+    top.concat("GLV*BRK*");
+
+    concat_3(lv_voltage, bottom);
+    bottom.concat("*");
+    concat_3(brake_raw, bottom);
+    bottom.concat("*");
+
     error_to_string(error, top, bottom);
   }
 }
@@ -181,6 +215,8 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
 
   updateTakeoverField(msg->master_reset_not_initialized, Takeover_Master_Reset);
   updateTakeoverField(msg->driver_reset_not_initialized, Takeover_Driver_Reset);
+
+  lv_voltage = msg->lv_battery_voltage;
 }
 
 void Takeover_Page::process_FrontCanNode_DriverOutput(
@@ -192,6 +228,10 @@ void Takeover_Page::process_FrontCanNode_DriverOutput(
 
   bool brake_released = !msg->brake_engaged;
   updateTakeoverField(!enabled && brake_released, Takeover_Brake_Released);
+}
+
+void Takeover_Page::process_FrontCanNode_RawValues(Can_FrontCanNode_RawValues_T *msg) {
+  brake_raw = msg->brake_1_raw;
 }
 
 void Takeover_Page::process_MC_ErrorAndWarning(Can_MC_ErrorAndWarning_T *msg) {
