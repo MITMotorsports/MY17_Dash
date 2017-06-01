@@ -19,6 +19,7 @@ static int16_t power_cW = 0;
 static uint8_t soc = 0;
 static uint8_t temp = 0;
 static uint16_t min_cell_voltage = 0;
+static bool dcdc_fault = false;
 
 static String lastTop = "";
 static String lastBottom = "";
@@ -40,6 +41,12 @@ void Critical_Page::process_CurrentSensor_Power(Can_CurrentSensor_Power_T *msg)
 
 void Critical_Page::process_Bms_Heartbeat(Can_Bms_Heartbeat_T *msg) {
   soc = msg->soc;
+  if (msg->dcdc_enable && msg->dcdc_fault) {
+    // Fault line is on when trying to enable, no bueno
+    dcdc_fault = true;
+  } else {
+    dcdc_fault = false;
+  }
 }
 
 void Critical_Page::process_Bms_CellTemps(Can_Bms_CellTemps_T *msg) {
@@ -68,7 +75,7 @@ void Critical_Page::top_line(String& line) {
   line.concat(" ");
   line.concat(regenOn ? "RE" : "  ");
   line.concat(" ");
-  line.concat(lvLow ? "LV" : "  ");
+  line.concat(dcdc_fault ? "LV" : "  ");
 }
 
 void Critical_Page::bottom_line(String& line) {
