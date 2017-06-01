@@ -74,11 +74,12 @@ void concat_3(uint16_t num, String& line) {
 
 void Takeover_Page::screen(String& top, String& bottom) {
   Takeover_Order error = getTakeover();
-  if (error < Takeover_Brake_Released) {
-    top.concat("********");
-    bottom.concat("********");
-    error_to_string(error, top, bottom);
-  } else if (error < Takeover_Length) {
+  // if (error < Takeover_Length) {
+  //   top.concat("********");
+  //   bottom.concat("********");
+  //   error_to_string(error, top, bottom);
+  // } else if (error < Takeover_Length) {
+  if (error < Takeover_Length) {
     top.concat("GLV*BRK*");
 
     concat_3(lv_voltage, bottom);
@@ -209,7 +210,6 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   enabled = msg->rtd_light;
 
   bool rtd_not_on = !enabled;
-  Serial.println(String(rtd_not_on));
 
   updateTakeoverField(rtd_not_on, Takeover_Rtd_Off);
 
