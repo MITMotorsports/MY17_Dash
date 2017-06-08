@@ -88,10 +88,16 @@ void Dispatcher::processButtonInputs() {
 
   if (button == STEERING_RIGHT_BUTTON) {
     if (action == TOUCH) {
-      // msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_ENABLE;
+      msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_ENABLE;
     }
     if (action == RELEASE) {
-      // msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_DISABLE;
+      msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_DISABLE;
+    }
+  }
+
+  if (button == STEERING_LEFT_BUTTON) {
+    if (action == TAP) {
+      msg.type = CAN_DASH_REQUEST_DATA_FLAG;
     }
   }
 

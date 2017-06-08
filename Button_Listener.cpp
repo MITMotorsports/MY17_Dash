@@ -6,7 +6,7 @@
 #define HOLD_TIMEOUT 500
 
 // This MUST be an array of pointers, so as to not clone the Bounce objects
-// upon access, thereby removing any of their attached pins and settings.
+// upon access, thereby removing all of their attached pins and settings.
 Bounce *bouncers[BUTTONS_LENGTH];
 
 static Bounce rtd_bouncer;
@@ -75,7 +75,7 @@ void Button_Listener::check(Button_T button) {
   // Check for touch
   if (debouncer->fell()) {
     *touch_time = msTicks;
-    press(button);
+    touch(button);
   }
 
   // Check for release and tap
@@ -104,7 +104,7 @@ Button_Action_T Button_Listener::to_Button_Action(Button_T button, Action_T acti
   return result;
 }
 
-void Button_Listener::press(Button_T button){
+void Button_Listener::touch(Button_T button){
   action_flags[button + TOUCH] = true;
 }
 
