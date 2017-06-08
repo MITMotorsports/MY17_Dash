@@ -8,7 +8,7 @@
 #include "Pins.h"
 
 typedef enum {
-    RTD_BUTTON,
+    RTD_BUTTON = 0,
     DASH_LEFT_BUTTON,
     DASH_RIGHT_BUTTON,
     STEERING_LEFT_BUTTON,
@@ -17,7 +17,7 @@ typedef enum {
 } Button_T;
 
 typedef enum {
-  TOUCH,
+  TOUCH = 0,
   TAP,
   HOLD,
   RELEASE,

@@ -18,7 +18,7 @@ const int IMD_LED_PIN = 55;
 //PF2, 95, digital 56
 const int AMS_LED_PIN = 56;
 
-//PA5, AD3, 75
+//PA5, AD3, physical_pin 75
 const int RTD_BUTTON_PIN = 25;
 
 //PD2, INT2, RXD1, physical_pin_45
