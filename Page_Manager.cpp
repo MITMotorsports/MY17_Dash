@@ -58,6 +58,10 @@ void Page_Manager::display() {
   }
 }
 
+void Page_Manager::process_action(Button_Action_T) {
+  // TODO
+}
+
 /**** process_msg is more complicated - see boilerplate section if curious ****/
 
 

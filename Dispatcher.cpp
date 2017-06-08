@@ -66,7 +66,39 @@ void Dispatcher::processCanInputs() {
 }
 
 void Dispatcher::processButtonInputs() {
-  Button_Listener::listen();
+  Button_Action_T button_action = Button_Listener::update();
+
+  Button_T button = button_action.button;
+  Action_T action = button_action.action;
+  if (button == DASH_LEFT_BUTTON || button == DASH_RIGHT_BUTTON) {
+    // Dash buttons are delegated to page manager
+    Page_Manager::process_action(button_action);
+    return;
+  }
+
+  Can_Dash_Request_T msg;
+  msg.type = CAN_DASH_REQUEST_NO_REQUEST;
+
+  if (button == RTD_BUTTON) {
+    if (action == TAP) {
+      msg.type = CAN_DASH_REQUEST_RTD_DISABLE;
+    } else if (action == HOLD) {
+      msg.type = CAN_DASH_REQUEST_RTD_ENABLE;
+    }
+  }
+
+  if (button == STEERING_RIGHT_BUTTON) {
+    if (action == TOUCH) {
+      // msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_ENABLE;
+    }
+    if (action == RELEASE) {
+      // msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_DISABLE;
+    }
+  }
+
+  if (msg.type != CAN_DASH_REQUEST_NO_REQUEST) {
+    Can_Dash_Request_Write(&msg);
+  }
 }
 
 void Dispatcher::displayPages(){
