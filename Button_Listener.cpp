@@ -1,179 +1,121 @@
 #include "Button_Listener.h"
 
+#include <Bounce2.h>
 #include <MY17_Can_Library.h>
 
-// Non-member variable used in timer function pointers
-bool enableFired = false;
-bool limpFired = false;
-bool aeroFired = false;
+#define HOLD_TIMEOUT 500
 
-// button mode is normally open, i.e. closes on push
-// pressRtdButton is called on press
-// releaseRtdButton is called on depress
-Bounce aeroDebounced;
-Bounce limpDebounced;
-Bounce rtdDebounced;
+// This MUST be an array of pointers, so as to not clone the Bounce objects
+// upon access, thereby removing any of their attached pins and settings.
+Bounce *bouncers[BUTTONS_LENGTH];
 
-Timer rtdTimer;
-Timer limpTimer;
-Timer aeroTimer;
+static Bounce rtd_bouncer;
+static Bounce dl_bouncer;
+static Bounce dr_bouncer;
+static Bounce sl_bouncer;
+static Bounce sr_bouncer;
 
-int8_t rtdTimerID;
-int8_t limpTimerID;
-int8_t aeroTimerID;
+uint32_t touch_times[BUTTONS_LENGTH];
+
+bool action_flags[BUTTONS_LENGTH * ACTIONS_LENGTH];
+
+Button_Action_T NO_ACTION = {.button=BUTTONS_LENGTH, .action=ACTIONS_LENGTH};
 
 void Button_Listener::begin() {
+  bouncers[RTD_BUTTON] = &rtd_bouncer;
+  bouncers[DASH_LEFT_BUTTON] = &dl_bouncer;
+  bouncers[DASH_RIGHT_BUTTON] = &dr_bouncer;
+  bouncers[STEERING_LEFT_BUTTON] = &sl_bouncer;
+  bouncers[STEERING_RIGHT_BUTTON] = &sr_bouncer;
+
   pinMode(RTD_BUTTON_PIN, INPUT);
-  pinMode(LIMP_BUTTON_PIN, INPUT);
-  pinMode(AERO_BUTTON_PIN, INPUT);
-  rtdDebounced.attach(RTD_BUTTON_PIN);
-  limpDebounced.attach(LIMP_BUTTON_PIN);
-  aeroDebounced.attach(AERO_BUTTON_PIN);
-  rtdDebounced.interval(50);
-  limpDebounced.interval(50);
-  aeroDebounced.interval(50);
-}
+  pinMode(DASH_LEFT_BUTTON_PIN, INPUT);
+  pinMode(DASH_RIGHT_BUTTON_PIN, INPUT);
+  pinMode(STEERING_LEFT_BUTTON_PIN, INPUT);
+  pinMode(STEERING_RIGHT_BUTTON_PIN, INPUT);
 
-void Button_Listener::pressButton(ButtonName button){
-  Serial.println("Button pressed");
-  switch (button) {
-    case RTD_BUTTON:
-      if (enableFired == false){
-        rtdTimerID = rtdTimer.after(500, Button_Listener::sendEnableRequest);
-      }
-      else{
-        //do nothing
-      }
-      break;
-    case LIMP_BUTTON:
-      if ( limpFired== false){
-        limpTimerID = limpTimer.after(500, Button_Listener::sendLimpLongRequest);
-      }
-      else{
-        //do nothing
-      }
-      break;
-    case AERO_BUTTON:
-      if ( limpFired== false){
-        aeroTimerID = aeroTimer.after(500, Button_Listener::sendAeroLongRequest);
-      }
-      else{
-        //do nothing
-      }
-      break;
+  bouncers[RTD_BUTTON]->attach(RTD_BUTTON_PIN);
+  bouncers[DASH_LEFT_BUTTON]->attach(DASH_LEFT_BUTTON_PIN);
+  bouncers[DASH_RIGHT_BUTTON]->attach(DASH_RIGHT_BUTTON_PIN);
+  bouncers[STEERING_LEFT_BUTTON]->attach(STEERING_LEFT_BUTTON_PIN);
+  bouncers[STEERING_RIGHT_BUTTON]->attach(STEERING_RIGHT_BUTTON_PIN);
+
+  for (int i = 0; i < BUTTONS_LENGTH; i++) {
+    bouncers[i]->interval(50);
   }
 }
 
-void Button_Listener::releaseButton(ButtonName button){
-  Serial.println("Button released");
-  switch (button) {
-    case RTD_BUTTON:
-      rtdTimer.stop(rtdTimerID);
-      if (enableFired) {
-        //do nothing, rtd enable message has been sent, reset enableFired
-        enableFired = false;
-      }
-      else {
-        sendDisableRequest();
-      }
-      break;
-    case LIMP_BUTTON:
-      limpTimer.stop(limpTimerID);
-      if (limpFired) {
-        //do nothing, rtd enable message has been sent, reset enableFired
-        limpFired = false;
-      }
-      else {
-        sendLimpShortRequest();
-      }
-      break;
-    case AERO_BUTTON:
-      aeroTimer.stop(aeroTimerID);
-      if (aeroFired) {
-        //do nothing, rtd enable message has been sent, reset enableFired
-        aeroFired = false;
-      }
-      else {
-        sendAeroShortRequest();
-      }
-      break;
+Button_Action_T Button_Listener::update() {
+  // First, update button and action states
+  for (int i = 0; i < BUTTONS_LENGTH; i++) {
+    Button_T button = (Button_T)i;
+    check(button);
+  }
+
+  // Now return appropriate action
+  for (int j = 0; j < BUTTONS_LENGTH * ACTIONS_LENGTH; j++) {
+    if (action_flags[j]) {
+      action_flags[j] = false;
+      Button_T button = (Button_T)(j / 4);
+      Action_T action = (Action_T)(j % 4);
+      return to_Button_Action(button, action);
+    }
+  }
+  return NO_ACTION;
+}
+
+void Button_Listener::check(Button_T button) {
+  uint32_t msTicks = millis();
+  uint32_t *touch_time = &touch_times[button];
+  Bounce *debouncer = bouncers[button];
+
+  // Read button state
+  debouncer->update();
+
+  // Check for touch
+  if (debouncer->fell()) {
+    *touch_time = msTicks;
+    press(button);
+  }
+
+  // Check for release and tap
+  if (debouncer->rose()) {
+    bool hold_not_fired = (*touch_time != 0);
+    if (hold_not_fired) {
+      *touch_time = 0;
+      tap(button);
+    }
+    release(button);
+  }
+
+  // Check for hold
+  bool hold_not_fired = (*touch_time != 0);
+  bool hold_time_reached = *touch_time + HOLD_TIMEOUT < msTicks;
+  if (hold_not_fired && hold_time_reached) {
+    *touch_time = 0;
+    hold(button);
   }
 }
 
-void Button_Listener::sendEnableRequest() {
-  Can_Dash_Request_T msg;
-  msg.type = CAN_DASH_REQUEST_RTD_ENABLE;
-  Can_Dash_Request_Write(&msg);
-  enableFired = true;
+Button_Action_T Button_Listener::to_Button_Action(Button_T button, Action_T action) {
+  Button_Action_T result;
+  result.button = button;
+  result.action = action;
+  return result;
 }
 
-void Button_Listener::sendDisableRequest() {
-  Can_Dash_Request_T msg;
-  msg.type = CAN_DASH_REQUEST_RTD_DISABLE;
-  Can_Dash_Request_Write(&msg);
-  enableFired = false;
+void Button_Listener::press(Button_T button){
+  action_flags[button + TOUCH] = true;
 }
 
-void Button_Listener::sendLimpLongRequest() {
-  Can_Dash_Request_T msg;
-  msg.type = CAN_DASH_REQUEST_LIMP_MODE_ENABLE;
-  Can_Dash_Request_Write(&msg);
-  limpFired = true;
+void Button_Listener::tap(Button_T button) {
+  action_flags[button + TAP] = true;
 }
 
-void Button_Listener::sendLimpShortRequest() {
-  Can_Dash_Request_T msg;
-  msg.type = CAN_DASH_REQUEST_LIMP_MODE_DISABLE;
-  Can_Dash_Request_Write(&msg);
-  limpFired = false;
+void Button_Listener::hold(Button_T button) {
+  action_flags[button + HOLD] = true;
 }
 
-void Button_Listener::sendAeroLongRequest() {
-  Serial.println("sent aero long request");
-  aeroFired = true;
-}
-
-void Button_Listener::sendAeroShortRequest() {
-  Can_Dash_Request_T msg;
-  msg.type = CAN_DASH_REQUEST_DATA_FLAG;
-  Can_Dash_Request_Write(&msg);
-  aeroFired = false;
-}
-
-void Button_Listener::listen() {
-  rtdDebounced.update();
-  limpDebounced.update();
-  aeroDebounced.update();
-
-  rtdTimer.update();
-  limpTimer.update();
-  aeroTimer.update();
-
-  bool rtdPress = rtdDebounced.fell();
-  bool rtdDepress = rtdDebounced.rose();
-
-  bool limpPress = limpDebounced.fell();
-  bool limpDepress = limpDebounced.rose();
-
-  bool aeroPress = aeroDebounced.fell();
-  bool aeroDepress = aeroDebounced.rose();
-
-  if (rtdPress == true){
-    pressButton(RTD_BUTTON);
-  }
-  else if (rtdDepress == true){
-    releaseButton(RTD_BUTTON);
-  }
-  if(limpPress == true){
-    pressButton(LIMP_BUTTON);
-  }
-  else if (limpDepress == true){
-    releaseButton(LIMP_BUTTON);
-  }
-  if(aeroPress == true){
-    pressButton(AERO_BUTTON);
-  }
-  else if (aeroDepress == true){
-    releaseButton(AERO_BUTTON);
-  }
+void Button_Listener::release(Button_T button){
+  action_flags[button + RELEASE] = true;
 }

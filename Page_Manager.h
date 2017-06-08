@@ -4,6 +4,7 @@
 #include <MY17_Can_Library.h>
 
 #include "Page.h"
+#include "Button_Listener.h"
 
 enum {
   TAKEOVER_PAGE,
@@ -16,6 +17,7 @@ class Page_Manager {
     static void begin();
     static void display();
     static void process_msg(Can_MsgID_T type);
+    static void process_action(Button_Action_T action);
 };
 
 #endif // _PAGE_MANAGER_H_

@@ -18,25 +18,23 @@ const int IMD_LED_PIN = 55;
 //PF2, 95, digital 56
 const int AMS_LED_PIN = 56;
 
-//PD2, 45
-const int SELECT_BUTTON_PIN = 19;
-
-//PD3, 46
-const int RIGHT_BUTTON_PIN = 18;
-
-// TODO initialize PD4 - PD5 in a special way
-//PD4, 47
-const int DRIVER_RESET_BUTTON_PIN = PD4;
-
-//PA5, AD3, 75
+//PA5, AD3, physical_pin 75
 const int RTD_BUTTON_PIN = 25;
 
-//TODO:update pins for aero and limp button
-//PD6, 49
-const int AERO_BUTTON_PIN = PD6;
+//PD2, INT2, RXD1, physical_pin_45
+const int DASH_LEFT_BUTTON_PIN = 19;
 
-//PD7, 50
-const int LIMP_BUTTON_PIN = 38;
+//PD3, INT3, TXD1, physical_pin_46
+const int DASH_RIGHT_BUTTON_PIN = 18;
+
+// PD6, T1, physical_pin_49
+// const int STEERING_LEFT_BUTTON_PIN = PD6;
+
+// PK7, PCINT23, ADC15, TP3, A15, physical_pin 82
+const int STEERING_LEFT_BUTTON_PIN = 69;
+
+//PD7, T0, physical_pin_50
+const int STEERING_RIGHT_BUTTON_PIN = 38;
 
 //PF7, 90
 const int BUZZER_PIN = 61;
