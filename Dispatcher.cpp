@@ -73,7 +73,6 @@ void Dispatcher::processButtonInputs() {
   if (button == DASH_LEFT_BUTTON || button == DASH_RIGHT_BUTTON) {
     // Dash buttons are delegated to page manager
     Page_Manager::process_action(button_action);
-    return;
   }
 
   Can_Dash_Request_T msg;

@@ -27,8 +27,11 @@ const int DASH_LEFT_BUTTON_PIN = 19;
 //PD3, INT3, TXD1, physical_pin_46
 const int DASH_RIGHT_BUTTON_PIN = 18;
 
-//PD6, T1, physical_pin_49
-const int STEERING_LEFT_BUTTON_PIN = PD6;
+// PD6, T1, physical_pin_49
+// const int STEERING_LEFT_BUTTON_PIN = PD6;
+
+// PK7, PCINT23, ADC15, TP3, A15, physical_pin 82
+const int STEERING_LEFT_BUTTON_PIN = 69;
 
 //PD7, T0, physical_pin_50
 const int STEERING_RIGHT_BUTTON_PIN = 38;

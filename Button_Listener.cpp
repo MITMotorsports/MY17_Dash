@@ -16,16 +16,14 @@ void Button_Listener::begin() {
   pinMode(RTD_BUTTON_PIN, INPUT);
   pinMode(DASH_LEFT_BUTTON_PIN, INPUT);
   pinMode(DASH_RIGHT_BUTTON_PIN, INPUT);
+  pinMode(STEERING_LEFT_BUTTON_PIN, INPUT);
   pinMode(STEERING_RIGHT_BUTTON_PIN, INPUT);
 
   bouncers[RTD_BUTTON].attach(RTD_BUTTON_PIN);
   bouncers[DASH_LEFT_BUTTON].attach(DASH_LEFT_BUTTON_PIN);
   bouncers[DASH_RIGHT_BUTTON].attach(DASH_RIGHT_BUTTON_PIN);
+  bouncers[STEERING_LEFT_BUTTON].attach(STEERING_LEFT_BUTTON_PIN);
   bouncers[STEERING_RIGHT_BUTTON].attach(STEERING_RIGHT_BUTTON_PIN);
-
-  // TODO when we figure out what pin this is
-  // pinMode(STEERING_LEFT_BUTTON_PIN, INPUT);
-  // bouncers[STEERING_LEFT_BUTTON].attach(STEERING_LEFT_BUTTON_PIN);
 
   for (int i = 0; i < BUTTONS_LENGTH; i++) {
     bouncers[i].interval(50);

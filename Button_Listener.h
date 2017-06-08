@@ -11,8 +11,7 @@ typedef enum {
     RTD_BUTTON,
     DASH_LEFT_BUTTON,
     DASH_RIGHT_BUTTON,
-    // TODO when we figure out what pin this is
-    //STEERING_LEFT_BUTTON,
+    STEERING_LEFT_BUTTON,
     STEERING_RIGHT_BUTTON,
     BUTTONS_LENGTH
 } Button_T;
