@@ -9,6 +9,8 @@
 enum {
   TAKEOVER_PAGE,
   CRITICAL_PAGE,
+  TRACTION_CONTROL_PAGE,
+  WHEEL_SPEED_PAGE,
   NUM_PAGES
 };
 
@@ -18,6 +20,10 @@ class Page_Manager {
     static void display();
     static void process_msg(Can_MsgID_T type);
     static void process_action(Button_Action_T action);
+  private:
+    static void update_page();
+    static void previous_page();
+    static void next_page();
 };
 
 #endif // _PAGE_MANAGER_H_

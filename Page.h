@@ -7,9 +7,10 @@
 
 class Page {
   public:
-    virtual void begin();
+    virtual void open();
     virtual bool shouldDisplay();
     virtual void screen(String& top, String& bottom);
+    virtual void close();
 
     virtual void process_FrontCanNode_DriverOutput(Can_FrontCanNode_DriverOutput_T *msg);
     virtual void process_FrontCanNode_RawValues(Can_FrontCanNode_RawValues_T *msg);

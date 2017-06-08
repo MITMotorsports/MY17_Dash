@@ -7,14 +7,19 @@
 #include "Lcd_Controller.h"
 
 #include "Page.h"
+
 #include "Critical_Page.h"
 #include "Takeover_Page.h"
-//#include "Misc_Page.h"
+#include "Wheel_Speed_Page.h"
+#include "Traction_Control_Page.h"
 
 // Due to C++ polymorphism reasons, this MUST be an array of pointers
 static Page* pages[NUM_PAGES];
+
 static Takeover_Page takeover;
 static Critical_Page critical;
+static Traction_Control_Page traction_control;
+static Wheel_Speed_Page wheel_speed;
 
 static uint8_t curr_page = TAKEOVER_PAGE;
 
@@ -24,8 +29,13 @@ static String last_bottom = "                ";
 void Page_Manager::begin() {
   takeover = Takeover_Page();
   critical = Critical_Page();
+  traction_control = Traction_Control_Page();
+  wheel_speed = Wheel_Speed_Page();
   pages[TAKEOVER_PAGE] = &takeover;
   pages[CRITICAL_PAGE] = &critical;
+  pages[TRACTION_CONTROL_PAGE] = &traction_control;
+  pages[WHEEL_SPEED_PAGE] = &traction_control;
+  update_page();
 }
 
 void Page_Manager::display() {
@@ -44,8 +54,7 @@ void Page_Manager::display() {
 
   // TODO implement other pages
   else {
-    top = "                ";
-    bottom = "                ";
+    pages[curr_page]->screen(top, bottom);
   }
 
   if (!top.equals(last_top)) {
@@ -58,8 +67,37 @@ void Page_Manager::display() {
   }
 }
 
-void Page_Manager::process_action(Button_Action_T) {
-  // TODO
+void Page_Manager::process_action(Button_Action_T button_action) {
+  Button_T button = button_action.button;
+  Action_T action = button_action.action;
+  if (button == DASH_LEFT_BUTTON) {
+    if (action == TAP) {
+      next_page();
+    }
+    if (action == HOLD) {
+      previous_page();
+    }
+  }
+}
+
+void Page_Manager::next_page() {
+  curr_page = (curr_page == NUM_PAGES) ? 0 : curr_page + 1;
+  update_page();
+}
+
+void Page_Manager::previous_page() {
+  curr_page = (curr_page == 0) ? NUM_PAGES - 1 : curr_page - 1;
+  update_page();
+}
+
+void Page_Manager::update_page() {
+  for (uint8_t i = 0; i < NUM_PAGES; i++) {
+    if (i == curr_page) {
+      pages[i]->open();
+    } else {
+      pages[i]->close();
+    }
+  }
 }
 
 /**** process_msg is more complicated - see boilerplate section if curious ****/
