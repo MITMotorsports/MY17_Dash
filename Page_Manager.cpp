@@ -52,9 +52,17 @@ void Page_Manager::display() {
     critical.screen(top, bottom);
   }
 
-  // TODO implement other pages
+  // TODO we may or may not need this, but is nice for linker to be able
+  // to check compilation of each page's screen method
+  else if (curr_page == TRACTION_CONTROL_PAGE) {
+    traction_control.screen(top, bottom);
+  }
+  else if (curr_page == WHEEL_SPEED_PAGE) {
+    wheel_speed.screen(top, bottom);
+  }
   else {
-    pages[curr_page]->screen(top, bottom);
+    // TODO
+    // pages[curr_page]->screen(top, bottom);
   }
 
   if (!top.equals(last_top)) {
