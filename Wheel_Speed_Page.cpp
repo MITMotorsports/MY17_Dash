@@ -25,13 +25,13 @@ void Wheel_Speed_Page::screen(String& top, String& bottom) {
 }
 
 void Wheel_Speed_Page::process_FrontCanNode_WheelSpeed(Can_FrontCanNode_WheelSpeed_T *msg) {
-  front_left_mRPM = msg->front_left_wheel_speed;
-  front_right_mRPM = msg->front_right_wheel_speed;
+  front_left_mRPM = msg->front_left_wheel_speed_mRPM;
+  front_right_mRPM = msg->front_right_wheel_speed_mRPM;
 }
 
 void Wheel_Speed_Page::process_RearCanNode_WheelSpeed(Can_RearCanNode_WheelSpeed_T *msg) {
-  rear_left_mRPM = msg->rear_left_wheel_speed;
-  rear_right_mRPM = msg->rear_right_wheel_speed;
+  rear_left_mRPM = msg->rear_left_wheel_speed_mRPM;
+  rear_right_mRPM = msg->rear_right_wheel_speed_mRPM;
 }
 
 void num_to_four_char_string(uint32_t num, String& output) {
