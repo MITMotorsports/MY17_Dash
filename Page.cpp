@@ -4,6 +4,7 @@
 void Page::open() { }
 bool Page::shouldDisplay() { return true; }
 void Page::screen(String& top, String& bottom) { }
+void Page::act(Action_T action) { }
 void Page::close() { }
 
 void Page::process_FrontCanNode_DriverOutput(Can_FrontCanNode_DriverOutput_T *msg) { }

@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#include "Button_Listener.h"
+
 #include <MY17_Can_Library.h>
 
 class Page {
@@ -10,6 +12,7 @@ class Page {
     virtual void open();
     virtual bool shouldDisplay();
     virtual void screen(String& top, String& bottom);
+    virtual void act(Action_T action);
     virtual void close();
 
     virtual void process_FrontCanNode_DriverOutput(Can_FrontCanNode_DriverOutput_T *msg);
