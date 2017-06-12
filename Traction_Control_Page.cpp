@@ -22,8 +22,24 @@ void Traction_Control_Page::screen(String& top, String& bottom) {
   num_to_five_char_string(controlled_torque, bottom);
 }
 
+void Traction_Control_Page::act(Action_T action) {
+  if (action == TAP) {
+    Can_Dash_Request_T msg;
+    msg.type = CAN_DASH_REQUEST_TRACTION_CONTROL_DISABLE;
+    Can_Dash_Request_Write(&msg);
+  }
+  else if (action == HOLD) {
+    Can_Dash_Request_T msg;
+    msg.type = CAN_DASH_REQUEST_TRACTION_CONTROL_ENABLE;
+    Can_Dash_Request_Write(&msg);
+  }
+}
+
 void Traction_Control_Page::close() {
-  // TODO
+  // Disable traction control when exiting page
+  Can_Dash_Request_T msg;
+  msg.type = CAN_DASH_REQUEST_TRACTION_CONTROL_DISABLE;
+  Can_Dash_Request_Write(&msg);
 }
 
 void Traction_Control_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {

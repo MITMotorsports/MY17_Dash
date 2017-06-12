@@ -86,6 +86,9 @@ void Page_Manager::process_action(Button_Action_T button_action) {
       previous_page();
     }
   }
+  else if (button == DASH_RIGHT_BUTTON) {
+    pages[curr_page]->act(action);
+  }
 }
 
 void Page_Manager::next_page() {
