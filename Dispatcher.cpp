@@ -80,8 +80,10 @@ void Dispatcher::processButtonInputs() {
 
   if (button == RTD_BUTTON) {
     if (action == TAP) {
+      Serial.println("DISABLE");
       msg.type = CAN_DASH_REQUEST_RTD_DISABLE;
     } else if (action == HOLD) {
+      Serial.println("ENABLE");
       msg.type = CAN_DASH_REQUEST_RTD_ENABLE;
     }
   }

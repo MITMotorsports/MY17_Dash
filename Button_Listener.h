@@ -38,10 +38,10 @@ class Button_Listener {
         static void check(Button_T button);
         static Button_Action_T to_Button_Action(Button_T button, Action_T action);
 
-        static void touch(Button_T button);
-        static void tap(Button_T button);
-        static void release(Button_T button);
-        static void hold(Button_T button);
+        static void touch(uint8_t button_idx);
+        static void tap(uint8_t button_idx);
+        static void release(uint8_t button_idx);
+        static void hold(uint8_t button_idx);
 };
 
 #endif

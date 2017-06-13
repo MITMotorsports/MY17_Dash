@@ -78,21 +78,23 @@ void Page_Manager::display() {
 void Page_Manager::process_action(Button_Action_T button_action) {
   Button_T button = button_action.button;
   Action_T action = button_action.action;
-  if (button == DASH_LEFT_BUTTON) {
+  if (button == DASH_RIGHT_BUTTON) {
     if (action == TAP) {
+      Serial.println("NEXT");
       next_page();
     }
-    if (action == HOLD) {
+    else if (action == HOLD) {
+      Serial.println("PREV");
       previous_page();
     }
   }
-  else if (button == DASH_RIGHT_BUTTON) {
+  else if (button == DASH_LEFT_BUTTON) {
     pages[curr_page]->act(action);
   }
 }
 
 void Page_Manager::next_page() {
-  curr_page = (curr_page == NUM_PAGES) ? 0 : curr_page + 1;
+  curr_page = (curr_page == NUM_PAGES - 1) ? 0 : curr_page + 1;
   update_page();
 }
 

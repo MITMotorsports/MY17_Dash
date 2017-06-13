@@ -56,8 +56,8 @@ Button_Action_T Button_Listener::update() {
   for (int j = 0; j < BUTTONS_LENGTH * ACTIONS_LENGTH; j++) {
     if (action_flags[j]) {
       action_flags[j] = false;
-      Button_T button = (Button_T)(j / 4);
-      Action_T action = (Action_T)(j % 4);
+      Button_T button = (Button_T)(j / ACTIONS_LENGTH);
+      Action_T action = (Action_T)(j % ACTIONS_LENGTH);
       return to_Button_Action(button, action);
     }
   }
@@ -69,13 +69,15 @@ void Button_Listener::check(Button_T button) {
   uint32_t *touch_time = &touch_times[button];
   Bounce *debouncer = bouncers[button];
 
+  uint8_t button_idx = button * ACTIONS_LENGTH;
+
   // Read button state
   debouncer->update();
 
   // Check for touch
   if (debouncer->fell()) {
     *touch_time = msTicks;
-    touch(button);
+    touch(button_idx);
   }
 
   // Check for release and tap
@@ -83,9 +85,9 @@ void Button_Listener::check(Button_T button) {
     bool hold_not_fired = (*touch_time != 0);
     if (hold_not_fired) {
       *touch_time = 0;
-      tap(button);
+      tap(button_idx);
     }
-    release(button);
+    release(button_idx);
   }
 
   // Check for hold
@@ -93,7 +95,7 @@ void Button_Listener::check(Button_T button) {
   bool hold_time_reached = *touch_time + HOLD_TIMEOUT < msTicks;
   if (hold_not_fired && hold_time_reached) {
     *touch_time = 0;
-    hold(button);
+    hold(button_idx);
   }
 }
 
@@ -104,18 +106,18 @@ Button_Action_T Button_Listener::to_Button_Action(Button_T button, Action_T acti
   return result;
 }
 
-void Button_Listener::touch(Button_T button){
-  action_flags[button + TOUCH] = true;
+void Button_Listener::touch(uint8_t button_idx){
+  action_flags[button_idx + TOUCH] = true;
 }
 
-void Button_Listener::tap(Button_T button) {
-  action_flags[button + TAP] = true;
+void Button_Listener::tap(uint8_t button_idx) {
+  action_flags[button_idx + TAP] = true;
 }
 
-void Button_Listener::hold(Button_T button) {
-  action_flags[button + HOLD] = true;
+void Button_Listener::hold(uint8_t button_idx) {
+  action_flags[button_idx + HOLD] = true;
 }
 
-void Button_Listener::release(Button_T button){
-  action_flags[button + RELEASE] = true;
+void Button_Listener::release(uint8_t button_idx){
+  action_flags[button_idx + RELEASE] = true;
 }
