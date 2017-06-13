@@ -22,10 +22,10 @@ const int AMS_LED_PIN = 56;
 const int RTD_BUTTON_PIN = 25;
 
 //PD2, INT2, RXD1, physical_pin_45
-const int DASH_LEFT_BUTTON_PIN = 19;
+const int DASH_RIGHT_BUTTON_PIN = 19;
 
 //PD3, INT3, TXD1, physical_pin_46
-const int DASH_RIGHT_BUTTON_PIN = 18;
+const int DASH_LEFT_BUTTON_PIN = 18;
 
 // PD6, T1, physical_pin_49
 // const int STEERING_LEFT_BUTTON_PIN = PD6;

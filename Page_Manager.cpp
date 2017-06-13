@@ -78,7 +78,7 @@ void Page_Manager::display() {
 void Page_Manager::process_action(Button_Action_T button_action) {
   Button_T button = button_action.button;
   Action_T action = button_action.action;
-  if (button == DASH_RIGHT_BUTTON) {
+  if (button == DASH_LEFT_BUTTON) {
     if (action == TAP) {
       Serial.println("NEXT");
       next_page();
@@ -88,7 +88,7 @@ void Page_Manager::process_action(Button_Action_T button_action) {
       previous_page();
     }
   }
-  else if (button == DASH_LEFT_BUTTON) {
+  else if (button == DASH_RIGHT_BUTTON) {
     pages[curr_page]->act(action);
   }
 }
