@@ -34,8 +34,8 @@ void Page_Manager::begin() {
   pages[TAKEOVER_PAGE] = &takeover;
   pages[CRITICAL_PAGE] = &critical;
   pages[TRACTION_CONTROL_PAGE] = &traction_control;
-  pages[WHEEL_SPEED_PAGE] = &traction_control;
-  update_page();
+  pages[WHEEL_SPEED_PAGE] = &wheel_speed;
+  pages[TAKEOVER_PAGE]->open();
 }
 
 void Page_Manager::display() {
@@ -94,23 +94,20 @@ void Page_Manager::process_action(Button_Action_T button_action) {
 }
 
 void Page_Manager::next_page() {
+  uint8_t last_page = curr_page;
   curr_page = (curr_page == NUM_PAGES - 1) ? 0 : curr_page + 1;
-  update_page();
+  update_page(last_page, curr_page);
 }
 
 void Page_Manager::previous_page() {
+  uint8_t last_page = curr_page;
   curr_page = (curr_page == 0) ? NUM_PAGES - 1 : curr_page - 1;
-  update_page();
+  update_page(last_page, curr_page);
 }
 
-void Page_Manager::update_page() {
-  for (uint8_t i = 0; i < NUM_PAGES; i++) {
-    if (i == curr_page) {
-      pages[i]->open();
-    } else {
-      pages[i]->close();
-    }
-  }
+void Page_Manager::update_page(uint8_t last_page, uint8_t next_page) {
+  pages[last_page]->close();
+  pages[next_page]->open();
 }
 
 /**** process_msg is more complicated - see boilerplate section if curious ****/
