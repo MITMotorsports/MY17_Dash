@@ -3,7 +3,14 @@
 #include <Arduino.h>
 
 typedef enum {
-  Takeover_Master_Reset = 0,
+  Takeover_Front_Can_Dead = 0,
+  Takeover_Rear_Can_Dead,
+  Takeover_Bms_Dead,
+  Takeover_MC_Dead,
+  Takeover_Dash_Dead,
+  Takeover_Current_Sensor_Dead,
+
+  Takeover_Master_Reset,
   Takeover_Driver_Reset,
 
   Takeover_Bms_Fault,
@@ -11,13 +18,6 @@ typedef enum {
   Takeover_Bspd_Fault,
   Takeover_Esd_Fault,
   Takeover_Tsms_Fault,
-
-  Takeover_Front_Can_Dead,
-  Takeover_Rear_Can_Dead,
-  Takeover_Bms_Dead,
-  Takeover_MC_Dead,
-  Takeover_Dash_Dead,
-  Takeover_Current_Sensor_Dead,
 
   Takeover_Driver_Reset_Open,
   Takeover_Precharge_Running,
@@ -93,6 +93,31 @@ void Takeover_Page::screen(String& top, String& bottom) {
 
 void error_to_string(Takeover_Order error, String& top, String& bot) {
   switch(error) {
+    case Takeover_Front_Can_Dead:
+      top.concat("   CHECK");
+      bot.concat(" FR NODE");
+      break;
+    case Takeover_Rear_Can_Dead:
+      top.concat("   CHECK");
+      bot.concat(" RE NODE");
+      break;
+    case Takeover_Bms_Dead:
+      top.concat("   CHECK");
+      bot.concat(" BMS CAN");
+      break;
+    case Takeover_MC_Dead:
+      top.concat("   CHECK");
+      bot.concat("MTR CONT");
+      break;
+    case Takeover_Dash_Dead:
+      // Pretty sure this will never happen
+      top.concat("   CHECK");
+      bot.concat("    DASH");
+      break;
+    case Takeover_Current_Sensor_Dead:
+      top.concat("   CHECK");
+      bot.concat("CURR SNS");
+      break;
     case Takeover_Master_Reset:
       top.concat("   PRESS");
       bot.concat(" M RESET");
@@ -121,31 +146,6 @@ void error_to_string(Takeover_Order error, String& top, String& bot) {
       top.concat("   CHECK");
       bot.concat("    TSMS");
       break;
-    case Takeover_Front_Can_Dead:
-      top.concat("   CHECK");
-      bot.concat(" FR NODE");
-      break;
-    case Takeover_Rear_Can_Dead:
-      top.concat("   CHECK");
-      bot.concat(" RE NODE");
-      break;
-    case Takeover_Bms_Dead:
-      top.concat("   CHECK");
-      bot.concat(" BMS CAN");
-      break;
-    case Takeover_MC_Dead:
-      top.concat("   CHECK");
-      bot.concat("MTR CONT");
-      break;
-    case Takeover_Dash_Dead:
-      // Pretty sure this will never happen
-      top.concat("   CHECK");
-      bot.concat("    DASH");
-      break;
-    case Takeover_Current_Sensor_Dead:
-      top.concat("   CHECK");
-      bot.concat("CURR SNS");
-      break;
     case Takeover_Driver_Reset_Open:
       top.concat("   PRESS");
       bot.concat(" D RESET");
@@ -154,6 +154,10 @@ void error_to_string(Takeover_Order error, String& top, String& bot) {
       top.concat("AWAITING");
       bot.concat("PRE CHRG");
       break;
+    case Takeover_MC_Fault:
+      top.concat("MTR CONT");
+      bot.concat("   FAULT");
+      break;
     case Takeover_Brake_Released:
       top.concat("   PRESS");
       bot.concat("   BRAKE");
@@ -161,10 +165,6 @@ void error_to_string(Takeover_Order error, String& top, String& bot) {
     case Takeover_Rtd_Off:
       top.concat("    HOLD");
       bot.concat("     RTD");
-      break;
-    case Takeover_MC_Fault:
-      top.concat("MTR CONT");
-      bot.concat("   FAULT");
       break;
     case Takeover_Throttle_Implausible:
       top.concat("THROTTLE");
@@ -189,17 +189,12 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->shutdown_esd_drain, Takeover_Esd_Fault);
   updateTakeoverField(msg->tsms_off, Takeover_Tsms_Fault);
 
-  // TODO when rear can node finished
-  // updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
-  updateTakeoverField(false, Takeover_Rear_Can_Dead);
-
   updateTakeoverField(msg->heartbeat_front_can_node_dead, Takeover_Front_Can_Dead);
+  updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
   updateTakeoverField(msg->heartbeat_bms_dead, Takeover_Bms_Dead);
   updateTakeoverField(msg->heartbeat_dash_dead, Takeover_Dash_Dead);
 
-  // TODO when we request/respond from mc
-  // updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
-  updateTakeoverField(false, Takeover_MC_Dead);
+  updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
 
   updateTakeoverField(
       msg->heartbeat_current_sensor_dead, Takeover_Current_Sensor_Dead);
