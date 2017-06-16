@@ -1,13 +1,9 @@
 #include "Wheel_Speed_Page.h"
 
-uint32_t front_left_mRPM = 0;
-uint32_t front_right_mRPM = 0;
-uint32_t rear_left_mRPM = 0;
-uint32_t rear_right_mRPM = 0;
-
-#define CLICKS_PER_REV 23UL
-#define MICROSECONDS_PER_SECOND 1000000UL
-#define SECONDS_PER_MINUTE 60UL
+uint32_t front_left_mRPM = 0UL;
+uint32_t front_right_mRPM = 0UL;
+uint32_t rear_left_mRPM = 0UL;
+uint32_t rear_right_mRPM = 0UL;
 
 uint32_t mrpm_to_rpm(uint32_t mrpm);
 void num_to_four_char_string(uint32_t num, String& output);
@@ -37,6 +33,10 @@ void Wheel_Speed_Page::process_RearCanNode_WheelSpeed(Can_RearCanNode_WheelSpeed
 void num_to_four_char_string(uint32_t num, String& output) {
   String num_string = String(num);
   uint8_t len = num_string.length();
+  if (len > 4) {
+    output.concat("9999");
+    return;
+  }
   for (int i = 0; i < 4 - len; i++) {
     output.concat(" ");
   }
@@ -46,5 +46,5 @@ void num_to_four_char_string(uint32_t num, String& output) {
 }
 
 uint32_t mrpm_to_rpm(uint32_t mrpm) {
-  return mrpm / 1000;
+  return mrpm / 1000UL;
 }

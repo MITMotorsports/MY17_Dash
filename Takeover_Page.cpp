@@ -194,7 +194,9 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->heartbeat_bms_dead, Takeover_Bms_Dead);
   updateTakeoverField(msg->heartbeat_dash_dead, Takeover_Dash_Dead);
 
-  updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
+  // TODO shitcode
+  //updateTakeoverField(msg->heartbeat_mc_dead, Takeover_MC_Dead);
+  updateTakeoverField(false, Takeover_MC_Dead);
 
   updateTakeoverField(
       msg->heartbeat_current_sensor_dead, Takeover_Current_Sensor_Dead);
