@@ -12,13 +12,10 @@ void Traction_Control_Page::open() {
 }
 
 void Traction_Control_Page::screen(String& top, String& bottom) {
-  top.concat("TC?");
-  bottom.concat(tc_enabled ? "ENA" : "DIS");
-
-  top.concat(" REG_TQ ");
+  top.concat("TORQUE_REQ ");
   num_to_five_char_string(raw_torque, top);
 
-  bottom.concat(" CTR_TQ ");
+  bottom.concat("TORQUE_FLT ");
   num_to_five_char_string(controlled_torque, bottom);
 }
 
