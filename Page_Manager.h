@@ -19,6 +19,7 @@ class Page_Manager {
     static void begin();
     static void display();
     static void process_msg(Can_MsgID_T type);
+    static void process_can_heartbeat(Can_MsgID_T type);
     static void process_action(Button_Action_T action);
   private:
     static void update_page(uint8_t last_page, uint8_t curr_page);

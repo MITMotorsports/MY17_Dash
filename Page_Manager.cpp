@@ -26,6 +26,10 @@ static uint8_t curr_page = TAKEOVER_PAGE;
 static String last_top = "                ";
 static String last_bottom = "                ";
 
+#define CAN_HEARTBEAT_TIMEOUT_MS 3000
+static uint32_t last_can_msg_ms = 0;
+static bool can_heartbeat_fail = false;
+
 void Page_Manager::begin() {
   takeover = Takeover_Page();
   critical = Critical_Page();
@@ -90,6 +94,20 @@ void Page_Manager::process_action(Button_Action_T button_action) {
   }
   else if (button == DASH_RIGHT_BUTTON) {
     pages[curr_page]->act(action);
+  }
+}
+
+void Page_Manager::process_can_heartbeat(Can_MsgID_T type) {
+  const uint32_t curr_time = millis();
+  if (type == Can_Vcu_DashHeartbeat_Msg) {
+    last_can_msg_ms = curr_time;
+  }
+  can_heartbeat_fail = last_can_msg_ms + CAN_HEARTBEAT_TIMEOUT_MS < curr_time;
+  takeover.set_heartbeat_fail(can_heartbeat_fail);
+  if (can_heartbeat_fail) {
+    // No CAN at all, so these won't be changed for a while
+    Led_Controller::setLight(IMD, LED_ON);
+    Led_Controller::setLight(AMS, LED_ON);
   }
 }
 

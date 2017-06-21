@@ -62,6 +62,7 @@ void Dispatcher::begin() {
 
 void Dispatcher::processCanInputs() {
   Can_MsgID_T type = Can_MsgType();
+  Page_Manager::process_can_heartbeat(type);
   Page_Manager::process_msg(type);
 }
 

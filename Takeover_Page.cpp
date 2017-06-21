@@ -3,7 +3,8 @@
 #include <Arduino.h>
 
 typedef enum {
-  Takeover_Front_Can_Dead = 0,
+  Takeover_All_Can_Dead = 0,
+  Takeover_Front_Can_Dead,
   Takeover_Rear_Can_Dead,
   Takeover_Bms_Dead,
   Takeover_MC_Dead,
@@ -50,6 +51,10 @@ bool Takeover_Page::shouldDisplay() {
   return takeover_bitfield != 0UL;
 }
 
+void Takeover_Page::set_heartbeat_fail(bool status) {
+  updateTakeoverField(status, Takeover_All_Can_Dead);
+}
+
 void concat_3(uint16_t num, String& line) {
   uint16_t disp = num;
   if (disp > 999) {
@@ -93,6 +98,9 @@ void Takeover_Page::screen(String& top, String& bottom) {
 
 void error_to_string(Takeover_Order error, String& top, String& bot) {
   switch(error) {
+    case Takeover_All_Can_Dead:
+      top.concat("   CHECK");
+      bot.concat(" CAN BUS");
     case Takeover_Front_Can_Dead:
       top.concat("   CHECK");
       bot.concat(" FR NODE");
