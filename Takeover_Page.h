@@ -8,6 +8,7 @@
 class Takeover_Page : public Page {
   public:
     bool shouldDisplay();
+    void act(Action_T action);
     void set_heartbeat_fail(bool status);
     void screen(String& top, String& bottom);
     void process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg);

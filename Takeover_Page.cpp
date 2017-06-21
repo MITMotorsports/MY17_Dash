@@ -40,6 +40,8 @@ static uint32_t takeover_bitfield = 0;
 static uint16_t lv_voltage = 0;
 static uint16_t brake_raw = 0;
 
+static Can_Vcu_LimpState_T limp_state = CAN_LIMP_NORMAL;
+
 Takeover_Order getTakeover();
 void updateTakeoverField(bool state, Takeover_Order idx);
 void error_to_string(Takeover_Order error, String& top, String& bottom);
@@ -49,6 +51,20 @@ static bool enabled = false;
 
 bool Takeover_Page::shouldDisplay() {
   return takeover_bitfield != 0UL;
+}
+
+// HACKHACK because takeover page view is identical to critical when there is no
+// error, we need to have the actions also be identical.
+void Takeover_Page::act(Action_T action) {
+  if (action == TAP) {
+    Can_Dash_Request_T msg;
+    msg.type = CAN_DASH_REQUEST_LIMP_MODE_ENABLE;
+    Can_Dash_Request_Write(&msg);
+  } else if (action == HOLD) {
+    Can_Dash_Request_T msg;
+    msg.type = CAN_DASH_REQUEST_LIMP_MODE_DISABLE;
+    Can_Dash_Request_Write(&msg);
+  }
 }
 
 void Takeover_Page::set_heartbeat_fail(bool status) {
