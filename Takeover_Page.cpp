@@ -198,7 +198,10 @@ void Takeover_Page::process_Vcu_DashHeartbeat(Can_Vcu_DashHeartbeat_T *msg) {
   updateTakeoverField(msg->tsms_off, Takeover_Tsms_Fault);
 
   updateTakeoverField(msg->heartbeat_front_can_node_dead, Takeover_Front_Can_Dead);
-  updateTakeoverField(msg->heartbeat_rear_can_node_dead, Takeover_Rear_Can_Dead);
+
+  // TODO shitcode
+  updateTakeoverField(false, Takeover_Rear_Can_Dead);
+
   updateTakeoverField(msg->heartbeat_bms_dead, Takeover_Bms_Dead);
   updateTakeoverField(msg->heartbeat_dash_dead, Takeover_Dash_Dead);
 
