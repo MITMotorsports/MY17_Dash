@@ -92,17 +92,21 @@ void Dispatcher::processButtonInputs() {
   if (button == STEERING_RIGHT_BUTTON) {
     if (action == TOUCH) {
       msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_ENABLE;
+      Serial.println("ACTIVE AERO ENABLE");
     }
     if (action == RELEASE) {
       msg.type = CAN_DASH_REQUEST_ACTIVE_AERO_DISABLE;
+      Serial.println("ACTIVE AERO DISABLE");
     }
   }
 
-  if (button == STEERING_LEFT_BUTTON) {
-    if (action == TAP) {
-      msg.type = CAN_DASH_REQUEST_DATA_FLAG;
-    }
-  }
+  // TODO re-enable when we fix steering wheel
+  // if (button == STEERING_LEFT_BUTTON) {
+  //   if (action == TAP) {
+  //     msg.type = CAN_DASH_REQUEST_DATA_FLAG;
+  //     Serial.println("DATA FLAG");
+  //   }
+  // }
 
   if (msg.type != CAN_DASH_REQUEST_NO_REQUEST) {
     Can_Dash_Request_Write(&msg);
