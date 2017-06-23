@@ -54,13 +54,9 @@ bool Takeover_Page::shouldDisplay() {
 // HACKHACK because takeover page view is identical to critical when there is no
 // error, we need to have the actions also be identical.
 void Takeover_Page::act(Action_T action) {
-  if (action == TAP) {
+  if (action == TOUCH) {
     Can_Dash_Request_T msg;
     msg.type = CAN_DASH_REQUEST_LIMP_MODE_ENABLE;
-    Can_Dash_Request_Write(&msg);
-  } else if (action == HOLD) {
-    Can_Dash_Request_T msg;
-    msg.type = CAN_DASH_REQUEST_LIMP_MODE_DISABLE;
     Can_Dash_Request_Write(&msg);
   }
 }

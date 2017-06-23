@@ -28,13 +28,9 @@ static String lastBottom = "";
 static Can_Vcu_LimpState_T limp_state = CAN_LIMP_NORMAL;
 
 void Critical_Page::act(Action_T action) {
-  if (action == TAP) {
+  if (action == TOUCH) {
     Can_Dash_Request_T msg;
     msg.type = CAN_DASH_REQUEST_LIMP_MODE_ENABLE;
-    Can_Dash_Request_Write(&msg);
-  } else if (action == HOLD) {
-    Can_Dash_Request_T msg;
-    msg.type = CAN_DASH_REQUEST_LIMP_MODE_DISABLE;
     Can_Dash_Request_Write(&msg);
   }
 }
