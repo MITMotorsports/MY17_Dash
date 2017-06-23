@@ -40,8 +40,6 @@ static uint32_t takeover_bitfield = 0;
 static uint16_t lv_voltage = 0;
 static uint16_t brake_raw = 0;
 
-static Can_Vcu_LimpState_T limp_state = CAN_LIMP_NORMAL;
-
 Takeover_Order getTakeover();
 void updateTakeoverField(bool state, Takeover_Order idx);
 void error_to_string(Takeover_Order error, String& top, String& bottom);

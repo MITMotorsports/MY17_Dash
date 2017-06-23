@@ -25,7 +25,7 @@ static bool dcdc_fault = false;
 static String lastTop = "";
 static String lastBottom = "";
 
-static Can_Vcu_LimpState_T limp_state;
+static Can_Vcu_LimpState_T limp_state = CAN_LIMP_NORMAL;
 
 void Critical_Page::act(Action_T action) {
   if (action == TAP) {
